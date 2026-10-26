@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+/* Dark mode is controlled by a `dark` class on <html> (see src/lib/theme.ts). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -37,11 +40,9 @@
   --color-accent-700: #047857;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root.dark {
+  --background: #0a0f1c;
+  --foreground: #e2e8f0;
 }
 
 body {
@@ -88,6 +89,34 @@ body {
     citewise-shift 8s ease-in-out infinite;
 }
 
+@keyframes citewise-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+.citewise-indeterminate {
+  animation: citewise-indeterminate 1.4s ease-in-out infinite;
+}
+
+@keyframes citewise-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+dialog.citewise-dialog[open] {
+  animation: citewise-pop 0.18s ease-out;
+}
+
 .citewise-float {
   animation: citewise-float 6s ease-in-out infinite;
 }
@@ -98,6 +127,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .citewise-float,
+  dialog.citewise-dialog[open],
+  .citewise-indeterminate,
   .citewise-border,
   .citewise-fade-up {
     animation: none;
