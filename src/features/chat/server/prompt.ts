@@ -1,8 +1,9 @@
-import type { ChatTurn, Source } from "../types";
+import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
+import type { Source } from "../types";
 
 export const NOT_FOUND = "I couldn't find that in your documents.";
 
-const SYSTEM_INSTRUCTION = `You are CiteWise, an assistant that answers questions using ONLY the numbered excerpts from the user's documents that are provided with each question.
+export const SYSTEM_INSTRUCTION = `You are CiteWise, an assistant that answers questions using ONLY the numbered excerpts from the user's documents that are provided with each question.
 
 Rules:
 - Base every statement on the excerpts. Do not use outside knowledge and do not guess.
@@ -16,25 +17,17 @@ Rules:
 - Reply in the language of the user's question, even if the excerpts are in another language.
 - Be concise and clear. Use short paragraphs or a short list when it helps.`;
 
-function formatExcerpts(sources: Source[]) {
+/** The numbered excerpts the model may cite, each labelled with document and page. */
+export function formatExcerpts(sources: Source[]) {
   if (sources.length === 0) return "No excerpts were found for this question.";
   return sources
     .map((s) => `[${s.n}] ${s.title}, page ${s.page}:\n${s.snippet}`)
     .join("\n\n");
 }
 
-/** Builds the Gemini request contents: earlier turns, then excerpts + question. */
-export function buildPrompt(question: string, sources: Source[], history: ChatTurn[] = []) {
-  const contents = [
-    ...history.map((turn) => ({
-      role: turn.role === "assistant" ? "model" : "user",
-      parts: [{ text: turn.content }],
-    })),
-    {
-      role: "user",
-      parts: [{ text: `Excerpts:\n\n${formatExcerpts(sources)}\n\nQuestion: ${question}` }],
-    },
-  ];
-
-  return { systemInstruction: SYSTEM_INSTRUCTION, contents };
-}
+/** Instructions, then earlier turns, then the excerpts and the new question. */
+export const answerPrompt = ChatPromptTemplate.fromMessages([
+  ["system", SYSTEM_INSTRUCTION],
+  new MessagesPlaceholder("history"),
+  ["human", "Excerpts:\n\n{excerpts}\n\nQuestion: {question}"],
+]);

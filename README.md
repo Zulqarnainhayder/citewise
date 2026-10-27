@@ -92,15 +92,78 @@ from the **Recent chats** list.
 | --- | --- |
 | Framework | [Next.js 16](https://nextjs.org) (App Router, Cache Components) and React 19 |
 | Language | TypeScript |
-| Styling | Tailwind CSS 4 with a two-color theme (slate-navy and emerald) |
+| Styling | Tailwind CSS 4 with a two-color theme (warm neutral and emerald) |
 | Auth, database, storage | [Supabase](https://supabase.com) (Postgres, pgvector, Auth, Storage) |
 | PDF text | [unpdf](https://github.com/unjs/unpdf), a serverless-friendly pdf.js build |
-| AI | Google Gemini: `gemini-embedding-001` for embeddings (768 dimensions) and `gemini-3.5-flash-lite` for answers (set `GEMINI_CHAT_MODEL` to change) |
+| AI orchestration | [LangChain.js](https://js.langchain.com): text splitter, Gemini embeddings and chat model, prompt templates and a custom vector store. [LangGraph.js](https://langchain-ai.github.io/langgraphjs/): the question-answering workflow |
+| AI models | Google Gemini: `gemini-embedding-001` for embeddings (768 dimensions) and `gemini-3.5-flash-lite` for answers (set `GEMINI_CHAT_MODEL` to change) |
 | PDF viewer | [PDF.js](https://mozilla.github.io/pdf.js/) (`pdfjs-dist`), loaded only when a PDF is opened |
 | Markdown | [react-markdown](https://github.com/remarkjs/react-markdown) renders answers safely |
 
 There is no separate backend. The server logic lives in Next.js route handlers and
 server actions, so the whole app deploys as one project (for example on Vercel).
+
+## Architecture
+
+CiteWise is a RAG (retrieval-augmented generation) app. Two pipelines share one database.
+
+### What LangChain.js and LangGraph.js do here
+
+Neither is an AI model. They are toolkits around one (Google Gemini).
+
+- **LangChain.js** supplies standard building blocks: a text splitter, embeddings, prompt templates, a
+  chat-model wrapper and a vector-store interface. They are provider-neutral, so swapping Gemini for another
+  model or another database changes little code.
+- **LangGraph.js** describes the question-answering steps as a graph with shared state: `retrieve`, then
+  `generate`, then `generateTitle` only for a new chat. It runs the steps in order, takes the branch and
+  streams the answer as it is written. New steps (for example "decide whether to search at all") can be added
+  as nodes.
+
+### 1. Ingestion: from PDF to searchable chunks
+
+```mermaid
+flowchart LR
+  A[PDF upload] --> B[(Private storage)]
+  B --> C["unpdf<br/>text per page"]
+  C --> D["LangChain<br/>RecursiveCharacterTextSplitter<br/>1000 chars, 200 overlap,<br/>page number in metadata"]
+  D --> E["LangChain<br/>GoogleGenerativeAIEmbeddings<br/>gemini-embedding-001, 768 dims"]
+  E --> F[("SupabaseChunkStore<br/>Postgres + pgvector")]
+```
+
+- Chunks never cross pages, so each one keeps exactly one page number. That is what makes
+  page-level citations and the highlight in the PDF viewer possible.
+- `SupabaseChunkStore` ([source](src/lib/langchain/supabaseChunkStore.ts)) is a custom LangChain
+  `VectorStore` over our own `chunks` table and `match_chunks()` SQL function. It runs with the
+  signed-in user's Supabase client, so row level security applies to every read and write.
+
+### 2. Question answering: a LangGraph workflow
+
+```mermaid
+flowchart LR
+  S((start)) --> R["retrieve<br/>embed the question, search each document,<br/>keep passages above a similarity threshold"]
+  R --> G["generate<br/>ChatPromptTemplate + ChatGoogleGenerativeAI,<br/>tokens streamed"]
+  G -- "new chat" --> T["generateTitle"]
+  G -- "existing chat" --> E((end))
+  T --> E
+```
+
+- The workflow is a LangGraph `StateGraph` ([source](src/features/chat/server/graph/index.ts)) with typed
+  state (question, history, selected documents, sources, answer, title).
+- `retrieve` searches each selected document separately when there are two to five, so one long
+  document cannot crowd out the others. `generate` answers only from the numbered excerpts, cites them
+  as `[1]`, `[2]`, names the document when several are involved, and replies "I couldn't find that in
+  your documents" instead of guessing.
+- The graph is streamed with `streamMode: ["updates", "messages"]`. The API route turns those events into
+  newline-delimited JSON (sources, tokens, done, title) for the browser, and saves the question, answer
+  and cited sources to Postgres.
+
+### Why these choices
+
+- **A custom vector store instead of a ready-made one.** The schema stores page numbers and enforces
+  per-user row level security, which the stock Supabase store does not model.
+- **Gemini embeddings at 768 dimensions.** A smaller vector keeps the index small and fast, and it still
+  matches across languages (an English document answers a German question).
+- **Everything in one Next.js app.** No separate backend, so one deployment.
 
 ## Database design
 
@@ -198,13 +261,15 @@ src/
     documents/                  Hooks (useDocuments, useUploader) + Dropzone,
                                 DocumentList, DocumentItem, DocumentStats, ...
     chat/                       useChat hook, ChatPanel, MessageList, AnswerText,
-                                SourceChips, Composer + server/ (retrieve, prompt,
-                                streamAnswer, validate)
+                                SourceChips, Composer + server/ (LangGraph workflow in
+                                graph/, prompt, persist, validate)
     viewer/                     PdfViewerPanel, PdfPage (canvas + highlight overlay),
                                 ViewerProvider, usePdfDocument, findHighlight
-    processing/                 Server-only pipeline: extractPages, chunkText, embed,
-                                processDocument
+    processing/                 Server-only ingestion: extractPages, splitPages
+                                (LangChain splitter), processDocument
   lib/
+    langchain/                  Model factories (Gemini chat + embeddings) and
+                                SupabaseChunkStore, a custom LangChain VectorStore
     supabase/                   Browser client, server client, useSupabase hook
     theme.ts                    Theme storage and the no-flash init script
   proxy.ts                      Session refresh and route protection
