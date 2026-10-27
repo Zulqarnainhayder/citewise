@@ -11,6 +11,7 @@ Upload PDFs, ask questions in English or German, and jump straight to the passag
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind-4-06b6d4?logo=tailwindcss&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-pgvector-3ecf8e?logo=supabase&logoColor=white)
+![CI](https://github.com/Zulqarnainhayder/citewise/actions/workflows/ci.yml/badge.svg)
 
 </div>
 
@@ -29,6 +30,25 @@ document each answer came from, so you can check it in one click.
 > that opens at the cited page with the passage highlighted are done. Workspaces, an
 > evaluation set and deployment are next. See the [roadmap](#roadmap) for what is built and what is planned.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/chat-citations.png" alt="A question across two contracts: each answer names its document, with citation badges and the cited passage" width="900">
+</p>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/pdf-viewer.png" alt="Clicking View in PDF opens the page beside the chat with the cited text highlighted"><br><sub><b>View in PDF</b> opens the cited page with the passage highlighted.</sub></td>
+    <td width="50%"><img src="docs/screenshots/documents.png" alt="The document library with status and counts"><br><sub>The document library.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/chat-dark.png" alt="The chat in dark mode"><br><sub>Dark mode.</sub></td>
+    <td width="50%" align="center"><img src="docs/screenshots/phone-viewer.png" alt="The PDF viewer full screen on a phone" width="300"><br><sub>The viewer on a phone.</sub></td>
+  </tr>
+</table>
+
+The screenshots use made-up documents.
+
 ## What works today
 
 | Area | Status | Details |
@@ -43,6 +63,7 @@ document each answer came from, so you can check it in one click.
 | PDF processing | Done | Text extracted page by page, split into overlapping chunks, embedded with Gemini (768 dimensions) and saved with page numbers. Status moves Uploaded, Processing, Ready or Failed, with a retry button |
 | Chat with page citations | Done | Streamed answers from a Gemini chat model, grounded only in your documents (choose which documents to search; with several, answers name each document and keep their facts separate), with `[n]` citation badges and expandable source passages. Says "I couldn't find that in your documents" instead of guessing. Works across English and German |
 | PDF viewer with highlighted citations | Done | "View in PDF" on any cited passage opens the document beside the chat at the exact page, with the passage highlighted. Page controls, open in a new tab, full screen on phones. The PDF is fetched from private storage and drawn in the browser with PDF.js |
+| Usage limits | Done | Per-user caps on questions and processed documents, with friendly messages, to protect the shared AI quota |
 | Saved chat history | Done | Every chat is saved with its sources and opens at its own address (`/chat/<id>`), with a short AI-written title. Recent chats are listed in the sidebar by date, with delete; follow-up questions use the saved conversation |
 | Semantic search | Verified | `match_chunks()` returns the right page for questions in English and German |
 | Document library | Done | List with status badges, summary counts, search by name and delete |
@@ -238,6 +259,36 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). You will be sent to the login page.
 
+## Testing and evaluation
+
+**Automated tests.** `npm test` runs 71 unit tests with [Vitest](https://vitest.dev). They cover the logic that
+needs no network: the highlight matcher, the citation parser, the page-aware splitter, request validation,
+the usage limits, the prompt, file checks and the evaluation scorer itself. **GitHub Actions**
+([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs lint, the type check, the tests and a production build on every
+push and pull request.
+
+**Accuracy evaluation.** [`eval/`](eval/) is a small benchmark that asks the real app 45 questions about four
+fictional documents (two similar English contracts with different numbers, a German handbook and a resume)
+and scores every answer automatically. The questions include reworded ones, ones that need a small
+calculation or comparison, ones that mix several documents, ones in the other language, a "trap" about a fact
+that exists only in a different document, an attempt to make the model ignore its rules, and questions the
+documents cannot answer.
+
+| Measure | Result |
+| --- | --- |
+| Correct answer and correct cited page | **45/45 (100%)** |
+| Right page found by search | 36/36 |
+| Answer has the correct fact | 36/36 |
+| Cites the right page | 36/36 |
+| Unanswerable questions correctly refused | 8/8 |
+| Time to first word (median / slowest 5%) | 1564 ms / 2038 ms |
+
+Full per-question results are in [`eval/RESULTS.md`](eval/RESULTS.md). Read the score with its limits in mind:
+the documents are short and fictional, it is a single run, and the scoring is automatic string matching (the scorer
+has its own tests that feed it wrong answers and check that it rejects them). It shows the pipeline works as
+designed, not how it performs on long, messy real documents. I also checked the app with scripted real-browser
+runs (sign-in, upload, chat, PDF viewer, phone layout); those are not in CI yet.
+
 ## Deploying to Vercel
 
 CiteWise deploys as a single Next.js project. These are the steps that were used for the live demo:
@@ -294,13 +345,19 @@ src/
   lib/
     langchain/                  Model factories (Gemini chat + embeddings) and
                                 SupabaseChunkStore, a custom LangChain VectorStore
+    limits/                     Per-user usage limits
     supabase/                   Browser client, server client, useSupabase hook
     theme.ts                    Theme storage and the no-flash init script
   proxy.ts                      Session refresh and route protection
 supabase/
   migrations/
     0001_init.sql               Schema, RLS policies, search function, storage bucket
+eval/                           Accuracy benchmark: documents, questions, scorer, results
+docs/screenshots/               Images used in this README
+.github/workflows/ci.yml        Lint, type check, tests and build on every push
 ```
+
+Unit tests sit next to the code they test (`*.test.ts`).
 
 ## Theming
 
@@ -315,7 +372,12 @@ script before first paint.
 ## Security notes
 
 - Row Level Security protects every table, and storage policies restrict files to their owner.
-- The service role key bypasses RLS, so it is used only in server code.
+- Every database and storage call runs as the signed-in user, so the policies always apply. The app never
+  uses the Supabase service role key (it bypasses RLS), and it is not deployed.
+- **Usage limits** protect the shared AI quota: by default 6 questions per minute, 50 questions per day
+  and 10 new documents processed per day for each user. They are counted from the user's own rows in
+  Postgres and can be changed with `CHAT_LIMIT_PER_MINUTE`, `CHAT_LIMIT_PER_DAY` and
+  `DOCUMENT_LIMIT_PER_DAY`. A blocked request gets a clear message and a `429` status.
 - Do not use real or sensitive documents with a free-tier AI key: prompts sent to the
   free Gemini tier may be used by Google to improve its products.
 
@@ -332,8 +394,13 @@ script before first paint.
 - [x] Chat history sidebar
 - [ ] Workspaces
 - [x] Clickable citations that open the PDF at the right page, with the passage highlighted
-- [ ] Hybrid search, reranking and an evaluation set
-- [ ] Tests, CI and deployment
+- [x] Evaluation set with automatic scoring (see `eval/`)
+- [x] Unit tests and GitHub Actions CI
+- [x] Deployment on Vercel
+- [x] Per-user usage limits
+- [ ] Hybrid keyword and meaning search with reranking
+- [ ] OCR for scanned PDFs
+- [ ] Browser end-to-end tests in CI
 
 ## Acknowledgements
 

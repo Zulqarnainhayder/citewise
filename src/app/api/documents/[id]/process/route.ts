@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { processDocument } from "@/features/processing/processDocument";
 import { ProcessingError } from "@/features/processing/errors";
+import { checkDocumentLimit } from "@/lib/limits/limits";
 import { createClient } from "@/lib/supabase/server";
 
 // Embedding a long PDF can take a while; allow the platform maximum.
@@ -16,6 +17,14 @@ export async function POST(
   const { data } = await supabase.auth.getUser();
   if (!data.user) {
     return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
+  }
+
+  const limit = await checkDocumentLimit(supabase, data.user.id);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: limit.message },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
   }
 
   try {

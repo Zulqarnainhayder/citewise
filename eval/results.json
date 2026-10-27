@@ -1,0 +1,390 @@
+{
+  "date": "2026-10-27",
+  "base": "http://localhost:3000",
+  "model": "gemini-3.5-flash-lite",
+  "summary": {
+    "overall": {
+      "pass": 45,
+      "total": 45
+    },
+    "retrievalHit": {
+      "n": 36,
+      "of": 36
+    },
+    "answerCorrect": {
+      "n": 36,
+      "of": 36
+    },
+    "citationCorrect": {
+      "n": 36,
+      "of": 36
+    },
+    "overRefusal": {
+      "n": 0,
+      "of": 36
+    },
+    "correctRefusal": {
+      "n": 8,
+      "of": 8
+    },
+    "smalltalkOk": {
+      "n": 1,
+      "of": 1
+    },
+    "firstTokenMs": {
+      "p50": 1564,
+      "p95": 2038
+    },
+    "totalMs": {
+      "p50": 1823,
+      "p95": 2264
+    },
+    "byType": {
+      "fact": {
+        "total": 19,
+        "pass": 19
+      },
+      "crosslanguage": {
+        "total": 3,
+        "pass": 3
+      },
+      "multidoc": {
+        "total": 5,
+        "pass": 5
+      },
+      "paraphrase": {
+        "total": 6,
+        "pass": 6
+      },
+      "reasoning": {
+        "total": 3,
+        "pass": 3
+      },
+      "unanswerable": {
+        "total": 8,
+        "pass": 8
+      },
+      "smalltalk": {
+        "total": 1,
+        "pass": 1
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "SA-notice",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1702,
+      "note": ""
+    },
+    {
+      "id": "SA-mail",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1588,
+      "note": ""
+    },
+    {
+      "id": "SA-interest",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1237,
+      "note": ""
+    },
+    {
+      "id": "SA-fee",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1871,
+      "note": ""
+    },
+    {
+      "id": "SA-court",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1391,
+      "note": ""
+    },
+    {
+      "id": "SA-parties",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1495,
+      "note": ""
+    },
+    {
+      "id": "SA-date",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1562,
+      "note": ""
+    },
+    {
+      "id": "VC-notice",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1753,
+      "note": ""
+    },
+    {
+      "id": "VC-cap",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1526,
+      "note": ""
+    },
+    {
+      "id": "VC-term",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1448,
+      "note": ""
+    },
+    {
+      "id": "VC-law",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 2248,
+      "note": ""
+    },
+    {
+      "id": "CR-job",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1875,
+      "note": ""
+    },
+    {
+      "id": "CR-cert",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1538,
+      "note": ""
+    },
+    {
+      "id": "CR-german",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1591,
+      "note": ""
+    },
+    {
+      "id": "HB-urlaub",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1526,
+      "note": ""
+    },
+    {
+      "id": "HB-probezeit",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1511,
+      "note": ""
+    },
+    {
+      "id": "HB-homeoffice",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1475,
+      "note": ""
+    },
+    {
+      "id": "HB-passwort",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1479,
+      "note": ""
+    },
+    {
+      "id": "HB-kuendigung",
+      "type": "fact",
+      "pass": true,
+      "firstTokenMs": 1311,
+      "note": ""
+    },
+    {
+      "id": "XL-vacation",
+      "type": "crosslanguage",
+      "pass": true,
+      "firstTokenMs": 1400,
+      "note": ""
+    },
+    {
+      "id": "XL-probation",
+      "type": "crosslanguage",
+      "pass": true,
+      "firstTokenMs": 2837,
+      "note": ""
+    },
+    {
+      "id": "XL-kuendigung",
+      "type": "crosslanguage",
+      "pass": true,
+      "firstTokenMs": 1511,
+      "note": ""
+    },
+    {
+      "id": "MD-notice",
+      "type": "multidoc",
+      "pass": true,
+      "firstTokenMs": 1786,
+      "note": ""
+    },
+    {
+      "id": "MD-invoice",
+      "type": "multidoc",
+      "pass": true,
+      "firstTokenMs": 1538,
+      "note": ""
+    },
+    {
+      "id": "MD-interest",
+      "type": "multidoc",
+      "pass": true,
+      "firstTokenMs": 2038,
+      "note": ""
+    },
+    {
+      "id": "MD-named",
+      "type": "multidoc",
+      "pass": true,
+      "firstTokenMs": 1657,
+      "note": ""
+    },
+    {
+      "id": "MD-handbook",
+      "type": "multidoc",
+      "pass": true,
+      "firstTokenMs": 1489,
+      "note": ""
+    },
+    {
+      "id": "P-warning",
+      "type": "paraphrase",
+      "pass": true,
+      "firstTokenMs": 1564,
+      "note": ""
+    },
+    {
+      "id": "P-late",
+      "type": "paraphrase",
+      "pass": true,
+      "firstTokenMs": 1602,
+      "note": ""
+    },
+    {
+      "id": "P-breach",
+      "type": "paraphrase",
+      "pass": true,
+      "firstTokenMs": 1630,
+      "note": ""
+    },
+    {
+      "id": "P-liable",
+      "type": "paraphrase",
+      "pass": true,
+      "firstTokenMs": 1546,
+      "note": ""
+    },
+    {
+      "id": "P-homeoffice",
+      "type": "paraphrase",
+      "pass": true,
+      "firstTokenMs": 1817,
+      "note": ""
+    },
+    {
+      "id": "P-cloud",
+      "type": "paraphrase",
+      "pass": true,
+      "firstTokenMs": 1544,
+      "note": ""
+    },
+    {
+      "id": "R-installment",
+      "type": "reasoning",
+      "pass": true,
+      "firstTokenMs": 1598,
+      "note": ""
+    },
+    {
+      "id": "R-years",
+      "type": "reasoning",
+      "pass": true,
+      "firstTokenMs": 1261,
+      "note": ""
+    },
+    {
+      "id": "R-longer",
+      "type": "reasoning",
+      "pass": true,
+      "firstTokenMs": 1798,
+      "note": ""
+    },
+    {
+      "id": "UA-salary",
+      "type": "unanswerable",
+      "pass": true,
+      "firstTokenMs": 1514,
+      "note": ""
+    },
+    {
+      "id": "UA-noncompete",
+      "type": "unanswerable",
+      "pass": true,
+      "firstTokenMs": 1499,
+      "note": ""
+    },
+    {
+      "id": "UA-france",
+      "type": "unanswerable",
+      "pass": true,
+      "firstTokenMs": 1698,
+      "note": ""
+    },
+    {
+      "id": "UA-color",
+      "type": "unanswerable",
+      "pass": true,
+      "firstTokenMs": 1326,
+      "note": ""
+    },
+    {
+      "id": "UA-krank",
+      "type": "unanswerable",
+      "pass": true,
+      "firstTokenMs": 1794,
+      "note": ""
+    },
+    {
+      "id": "UA-spanien",
+      "type": "unanswerable",
+      "pass": true,
+      "firstTokenMs": 1894,
+      "note": ""
+    },
+    {
+      "id": "UA-trap-cap",
+      "type": "unanswerable",
+      "pass": true,
+      "firstTokenMs": 1576,
+      "note": ""
+    },
+    {
+      "id": "UA-hijack",
+      "type": "unanswerable",
+      "pass": true,
+      "firstTokenMs": 1700,
+      "note": ""
+    },
+    {
+      "id": "ST-hi",
+      "type": "smalltalk",
+      "pass": true,
+      "firstTokenMs": 1910,
+      "note": ""
+    }
+  ]
+}

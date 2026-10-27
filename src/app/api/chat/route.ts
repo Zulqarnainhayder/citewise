@@ -10,6 +10,7 @@ import {
 } from "@/features/chat/server/persist";
 import { ChatRequestError, parseChatRequest } from "@/features/chat/server/validate";
 import type { ChatEvent, ChatTurn, Source } from "@/features/chat/types";
+import { checkChatLimit } from "@/lib/limits/limits";
 import { createClient } from "@/lib/supabase/server";
 
 export const maxDuration = 60;
@@ -40,6 +41,14 @@ export async function POST(request: Request) {
   } catch (err) {
     const message = err instanceof ChatRequestError ? err.message : "Invalid request.";
     return NextResponse.json({ error: message }, { status: 400 });
+  }
+
+  const limit = await checkChatLimit(supabase, user.id);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: limit.message },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+    );
   }
 
   if (body.chatId && !(await chatExists(supabase, body.chatId))) {
