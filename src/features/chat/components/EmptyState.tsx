@@ -1,19 +1,28 @@
 import Link from "next/link";
 import { SparklesIcon } from "@/components/icons";
 
-const suggestions = [
+const singleDocument = [
   "Summarize the key points of this document",
   "What deadlines or dates are mentioned?",
   "What are the main obligations or risks?",
 ];
 
+const severalDocuments = [
+  "Summarize each document separately",
+  "Which skills or topics appear in all of these documents?",
+  "Are there any differences between my documents?",
+];
+
 type Props = {
+  /** How many documents the chat will search. */
+  documentCount: number;
   hasReadyDocuments: boolean;
   loading: boolean;
   onPick: (question: string) => void;
 };
 
-export function EmptyState({ hasReadyDocuments, loading, onPick }: Props) {
+export function EmptyState({ documentCount, hasReadyDocuments, loading, onPick }: Props) {
+  const suggestions = documentCount > 1 ? severalDocuments : singleDocument;
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
       <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-100 text-accent-700 ring-1 ring-accent-200 dark:bg-accent-700/20 dark:text-accent-300 dark:ring-accent-700/40">
@@ -24,7 +33,7 @@ export function EmptyState({ hasReadyDocuments, loading, onPick }: Props) {
         <p className="mt-5 text-sm text-brand-600 dark:text-brand-300">Loading your documents…</p>
       ) : hasReadyDocuments ? (
         <>
-          <h2 className="mt-5 text-xl font-semibold text-brand-900 dark:text-white">
+          <h2 className="mt-5 font-serif text-3xl font-semibold tracking-tight text-brand-900 dark:text-white">
             Ask anything about your documents
           </h2>
           <p className="mt-2 max-w-md text-sm text-brand-600 dark:text-brand-300">
@@ -45,7 +54,7 @@ export function EmptyState({ hasReadyDocuments, loading, onPick }: Props) {
         </>
       ) : (
         <>
-          <h2 className="mt-5 text-xl font-semibold text-brand-900 dark:text-white">
+          <h2 className="mt-5 font-serif text-3xl font-semibold tracking-tight text-brand-900 dark:text-white">
             No documents are ready yet
           </h2>
           <p className="mt-2 max-w-md text-sm text-brand-600 dark:text-brand-300">

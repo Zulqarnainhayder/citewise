@@ -8,7 +8,7 @@ type Props = {
 };
 
 const look =
-  "mx-0.5 inline-flex h-[1.15rem] min-w-[1.15rem] items-center justify-center rounded-md bg-accent-100 px-1 align-baseline text-[0.68rem] font-semibold leading-none text-accent-700 dark:bg-accent-700/25 dark:text-accent-300";
+  "mx-0.5 inline-flex h-[1.1rem] min-w-[1.1rem] items-center justify-center rounded-md bg-accent-100 px-1 align-baseline text-[0.65rem] font-semibold leading-none text-accent-700 dark:bg-accent-700/25 dark:text-accent-300";
 
 /** The small [1] marker inside an answer. */
 export function CitationBadge({ n, source, onOpen }: Props) {

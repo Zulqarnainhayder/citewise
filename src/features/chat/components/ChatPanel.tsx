@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { Spinner } from "@/components/ui/Spinner";
 import { useSavedMessages } from "../hooks/useSavedMessages";
 import { ChatSession } from "./ChatSession";
@@ -8,6 +10,17 @@ import { ChatSession } from "./ChatSession";
 /** Loads a saved chat when given an id, then shows the conversation. */
 export function ChatPanel({ chatId }: { chatId?: string }) {
   const saved = useSavedMessages(chatId);
+
+  // A new chat rewrites its own address to /chat/<id> without a real navigation, so
+  // Next keeps this page mounted. When the address returns to /chat (the New chat
+  // button), start over with a fresh conversation.
+  const pathname = usePathname();
+  const [lastPath, setLastPath] = useState(pathname);
+  const [freshChats, setFreshChats] = useState(0);
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    if (pathname === "/chat") setFreshChats((n) => n + 1);
+  }
 
   if (chatId && saved.loading) {
     return (
@@ -34,5 +47,12 @@ export function ChatPanel({ chatId }: { chatId?: string }) {
     );
   }
 
-  return <ChatSession key={chatId ?? "new"} chatId={chatId} initialMessages={saved.messages} />;
+  return (
+    <ChatSession
+      key={chatId ?? `new-${freshChats}`}
+      chatId={chatId}
+      initialTitle={saved.title}
+      initialMessages={saved.messages}
+    />
+  );
 }

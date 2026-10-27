@@ -16,7 +16,7 @@ export function BrandPanel() {
       <Logo className="relative" />
 
       <div className="relative max-w-lg">
-        <h2 className="text-balance text-4xl font-semibold leading-tight tracking-tight xl:text-5xl">
+        <h2 className="text-balance font-serif text-4xl font-semibold leading-[1.15] tracking-tight xl:text-[3.25rem]">
           Chat with your documents.
           <span className="block text-accent-400">Every answer cites its page.</span>
         </h2>

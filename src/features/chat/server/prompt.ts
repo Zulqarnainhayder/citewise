@@ -11,6 +11,8 @@ Rules:
 - You may answer questions about the documents themselves, such as what kind of document it is or what it is about, by drawing straightforward conclusions from the excerpts.
 - If the excerpts do not contain the answer to a factual question, reply exactly: "${NOT_FOUND}" and nothing else. Never invent details that are not in the excerpts.
 - If no excerpts are provided and the message is only a greeting or small talk, reply briefly and invite the user to ask about their documents. Otherwise reply exactly: "${NOT_FOUND}"
+- Each excerpt is labelled with its document name. When excerpts come from more than one document, say which document each point comes from, and keep the documents separate. Never merge facts from different documents into one statement, because the documents can disagree.
+- If the user says "this document" or "the document" and excerpts from several documents are provided, answer for each document separately under its name.
 - Reply in the language of the user's question, even if the excerpts are in another language.
 - Be concise and clear. Use short paragraphs or a short list when it helps.`;
 

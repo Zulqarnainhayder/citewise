@@ -2,27 +2,39 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TrashIcon } from "@/components/icons";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { SearchInput } from "@/components/ui/SearchInput";
 import { useChats } from "../hooks/useChats";
 import { groupByRecency } from "../lib/groupChats";
 import type { ChatSummary } from "../types";
+
+/** Search appears once there are enough chats to need it. */
+const SEARCH_FROM = 4;
+
+const note = "px-3 py-2 text-xs text-brand-500 dark:text-brand-400";
 
 type Props = {
   /** Called when a chat is opened, e.g. to close the mobile history dialog. */
   onNavigate?: () => void;
 };
 
-/** Saved chats grouped by date, with open and delete. */
+/** Saved chats grouped by date, with search, open and delete. */
 export function ChatHistoryPanel({ onNavigate }: Props) {
   const { chats, loading, remove } = useChats();
   const pathname = usePathname();
   const router = useRouter();
+  const [query, setQuery] = useState("");
   const [pending, setPending] = useState<ChatSummary | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const activeId = pathname.startsWith("/chat/") ? pathname.split("/")[2] : null;
+
+  const visible = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return needle ? chats.filter((c) => c.title.toLowerCase().includes(needle)) : chats;
+  }, [chats, query]);
 
   async function confirmDelete() {
     if (!pending) return;
@@ -33,19 +45,27 @@ export function ChatHistoryPanel({ onNavigate }: Props) {
     setPending(null);
   }
 
-  if (loading) {
-    return <p className="px-3 py-2 text-xs text-brand-500 dark:text-brand-400">Loading chats…</p>;
-  }
-  if (chats.length === 0) {
-    return <p className="px-3 py-2 text-xs text-brand-500 dark:text-brand-400">No saved chats yet.</p>;
-  }
+  if (loading) return <p className={note}>Loading chats…</p>;
+  if (chats.length === 0) return <p className={note}>No saved chats yet.</p>;
 
   return (
     <>
+      {chats.length >= SEARCH_FROM && (
+        <SearchInput
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search chats"
+          aria-label="Search chats"
+          className="mb-3"
+        />
+      )}
+
+      {visible.length === 0 && <p className={note}>No chats match “{query.trim()}”.</p>}
+
       <div className="space-y-4">
-        {groupByRecency(chats).map((group) => (
+        {groupByRecency(visible).map((group) => (
           <section key={group.label}>
-            <h3 className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-brand-500 dark:text-brand-400">
+            <h3 className="px-3 pb-1 text-xs font-medium text-brand-500 dark:text-brand-400">
               {group.label}
             </h3>
             <ul className="space-y-0.5">
@@ -58,10 +78,10 @@ export function ChatHistoryPanel({ onNavigate }: Props) {
                       onClick={onNavigate}
                       aria-current={active ? "page" : undefined}
                       title={chat.title}
-                      className={`block truncate rounded-lg py-2 pl-3 pr-9 text-sm transition ${
+                      className={`block truncate rounded-lg py-[7px] pl-3 pr-9 text-[13px] font-medium leading-5 tracking-[-0.006em] transition ${
                         active
-                          ? "bg-brand-100 font-medium text-brand-900 dark:bg-brand-800 dark:text-white"
-                          : "text-brand-600 hover:bg-brand-100 hover:text-brand-900 dark:text-brand-300 dark:hover:bg-brand-900 dark:hover:text-white"
+                          ? "bg-brand-200/70 text-brand-900 dark:bg-brand-800 dark:text-white"
+                          : "text-brand-600 hover:bg-brand-200/50 hover:text-brand-900 dark:text-brand-300 dark:hover:bg-brand-800/70 dark:hover:text-white"
                       }`}
                     >
                       {chat.title}

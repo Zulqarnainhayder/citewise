@@ -49,6 +49,10 @@ export async function saveUserMessage(
   if (error) throw new Error(error.message);
 }
 
+export async function updateChatTitle(supabase: SupabaseClient, chatId: string, title: string) {
+  await supabase.from("chats").update({ title }).eq("id", chatId);
+}
+
 /** Saves the answer with only the sources it cites, then bumps the chat to the top. */
 export async function saveAnswer(
   supabase: SupabaseClient,

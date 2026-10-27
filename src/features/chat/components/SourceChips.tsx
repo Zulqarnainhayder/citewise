@@ -61,8 +61,8 @@ export function SourceChips({ content, sources, openN, onOpenChange }: Props) {
       </div>
 
       {active && (
-        <blockquote className="mt-3 rounded-lg border-l-4 border-accent-600 bg-brand-50 px-3.5 py-2.5 text-sm leading-relaxed text-brand-700 dark:bg-brand-950/60 dark:text-brand-200">
-          <p className="mb-1 text-xs font-semibold text-brand-500 dark:text-brand-400">
+        <blockquote className="mt-3 max-h-60 overflow-y-auto rounded-lg border-l-4 border-accent-600 bg-brand-50 px-4 py-3 font-serif text-sm leading-[1.7] text-brand-700 dark:bg-brand-950/60 dark:text-brand-200">
+          <p className="mb-1.5 font-sans text-xs font-semibold text-brand-500 dark:text-brand-400">
             Source {active.n} · {active.title}, page {active.page}
           </p>
           {active.snippet}

@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { SignOutButton } from "@/features/auth/components/SignOutButton";
 import { createClient } from "@/lib/supabase/server";
 
@@ -7,17 +8,21 @@ export async function AccountCard() {
   const email = data?.claims?.email ?? "";
 
   return (
-    <div className="space-y-3 border-t border-brand-200 p-3 dark:border-brand-800">
-      <div className="flex items-center gap-3 px-1">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-700 text-sm font-semibold uppercase text-white">
+    <div className="space-y-3 border-t border-brand-200/80 p-3 dark:border-brand-800">
+      <div className="flex items-center gap-2.5 px-1">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-700 text-sm font-semibold uppercase text-white">
           {email.charAt(0) || "?"}
         </span>
-        <div className="min-w-0">
-          <p className="text-xs text-brand-600 dark:text-brand-300">Signed in as</p>
-          <p className="truncate text-sm font-medium text-brand-900 dark:text-white">{email}</p>
+        <p className="min-w-0 flex-1 truncate text-[13px] font-medium text-brand-800 dark:text-brand-100" title={email}>
+          {email}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <ThemeToggle className="w-[6.75rem] shrink-0" />
+        <div className="min-w-0 flex-1">
+          <SignOutButton fullWidth />
         </div>
       </div>
-      <SignOutButton fullWidth />
     </div>
   );
 }

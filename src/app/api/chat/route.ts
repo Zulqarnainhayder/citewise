@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
+import { generateTitle } from "@/features/chat/server/generateTitle";
 import {
   chatExists,
   createChat,
   loadHistory,
   saveAnswer,
   saveUserMessage,
+  updateChatTitle,
 } from "@/features/chat/server/persist";
 import { retrieveSources } from "@/features/chat/server/retrieve";
 import { streamAnswer } from "@/features/chat/server/streamAnswer";
@@ -112,6 +114,19 @@ export async function POST(request: Request) {
             await saveAnswer(supabase, user.id, savedChatId, answer, sources);
           } catch (err) {
             console.error("Saving the answer failed:", err);
+          }
+
+          // A new chat gets a short descriptive title once it has an answer.
+          if (newTitle && !request.signal.aborted) {
+            const title = await generateTitle(body.question, answer, [
+              ...new Set(sources.map((s) => s.title)),
+            ]);
+            try {
+              await updateChatTitle(supabase, savedChatId, title);
+              send({ type: "title", title });
+            } catch (err) {
+              console.error("Saving the chat title failed:", err);
+            }
           }
         }
         try {

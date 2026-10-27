@@ -13,7 +13,7 @@ type NavItemProps = {
   soon?: boolean;
 };
 
-const base = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition";
+const base = "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition";
 
 export function NavItem({ label, icon, href, soon }: NavItemProps) {
   const pathname = usePathname();
@@ -41,8 +41,8 @@ export function NavItem({ label, icon, href, soon }: NavItemProps) {
       aria-current={active ? "page" : undefined}
       className={`${base} ${
         active
-          ? "bg-accent-50 text-accent-700 dark:bg-accent-700/15 dark:text-accent-300"
-          : "text-brand-600 hover:bg-brand-100 hover:text-brand-900 dark:text-brand-300 dark:hover:bg-brand-900 dark:hover:text-white"
+          ? "bg-accent-100/70 text-accent-700 dark:bg-accent-700/15 dark:text-accent-300"
+          : "text-brand-600 hover:bg-brand-200/60 hover:text-brand-900 dark:text-brand-300 dark:hover:bg-brand-800 dark:hover:text-white"
       }`}
     >
       {icon}

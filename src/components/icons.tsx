@@ -179,3 +179,23 @@ export const HistoryIcon = (p: IconProps) => (
     <path d="M3 3v5h5M12 7v5l3 2" />
   </Svg>
 );
+
+export const CheckIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m5 12.5 4.5 4.5L19 7.5" />
+  </Svg>
+);
+
+export const CopyIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="9" y="9" width="11" height="11" rx="2" />
+    <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+  </Svg>
+);
+
+export const ArrowDownIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 5v14m0 0 6-6m-6 6-6-6" />
+  </Svg>
+);
+

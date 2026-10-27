@@ -30,6 +30,7 @@ export type ChatEvent =
   | { type: "sources"; sources: Source[] }
   | { type: "delta"; text: string }
   | { type: "done" }
+  | { type: "title"; title: string }
   | { type: "error"; message: string };
 
 /** A message as shown in the chat screen. */

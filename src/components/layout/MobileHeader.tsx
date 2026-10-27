@@ -8,7 +8,7 @@ import { MobileNav } from "./MobileNav";
 export function MobileHeader() {
   return (
     <div className="sticky top-0 z-10 lg:hidden">
-      <header className="flex h-14 items-center justify-between border-b border-brand-200 bg-white/90 px-4 backdrop-blur dark:border-brand-800 dark:bg-brand-950/90">
+      <header className="flex h-14 items-center justify-between border-b border-brand-200 bg-brand-50/95 px-4 backdrop-blur dark:border-brand-800 dark:bg-brand-950/95">
         <Logo size={30} />
         <div className="flex items-center gap-2">
           <ThemeButton />

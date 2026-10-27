@@ -16,7 +16,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label="Main"
-      className="flex h-12 border-b border-brand-200 bg-white/90 backdrop-blur dark:border-brand-800 dark:bg-brand-950/90"
+      className="flex h-12 border-b border-brand-200 bg-brand-50/95 backdrop-blur dark:border-brand-800 dark:bg-brand-950/95"
     >
       {tabs.map(({ href, label, Icon }) => {
         const active = pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));

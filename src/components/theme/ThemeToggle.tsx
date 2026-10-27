@@ -19,7 +19,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     <div
       role="radiogroup"
       aria-label="Color theme"
-      className={`grid grid-cols-3 gap-1 rounded-xl bg-brand-100 p-1 dark:bg-brand-900 ${className}`}
+      className={`grid grid-cols-3 gap-1 rounded-lg bg-brand-200/70 p-0.5 dark:bg-brand-800 ${className}`}
     >
       {options.map(({ value, label, Icon }) => {
         const selected = theme === value;

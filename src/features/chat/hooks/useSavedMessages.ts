@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSupabase } from "@/lib/supabase/useSupabase";
 import type { ChatMessage, Source } from "../types";
 
-type State = { loading: boolean; notFound: boolean; messages: ChatMessage[] };
+type State = { loading: boolean; notFound: boolean; title?: string; messages: ChatMessage[] };
 
 type Row = { id: string; role: "user" | "assistant"; content: string; sources: Source[] | null };
 
@@ -18,7 +18,7 @@ export function useSavedMessages(chatId?: string): State {
     let cancelled = false;
 
     (async () => {
-      const { data: chat } = await supabase.from("chats").select("id").eq("id", chatId).maybeSingle();
+      const { data: chat } = await supabase.from("chats").select("id, title").eq("id", chatId).maybeSingle();
       if (!chat) {
         if (!cancelled) setState({ loading: false, notFound: true, messages: [] });
         return;
@@ -34,6 +34,7 @@ export function useSavedMessages(chatId?: string): State {
       setState({
         loading: false,
         notFound: false,
+        title: chat.title as string,
         messages: ((data ?? []) as Row[]).map((row) => ({
           id: row.id,
           role: row.role,

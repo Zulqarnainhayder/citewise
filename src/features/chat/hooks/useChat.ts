@@ -8,13 +8,15 @@ import type { ChatMessage } from "../types";
 type Options = {
   /** The saved chat being continued; undefined for a new chat. */
   chatId?: string;
+  initialTitle?: string;
   initialMessages?: ChatMessage[];
 };
 
 /** Chat state: sends questions, streams answers in, supports stop and retry. */
-export function useChat({ chatId: initialChatId, initialMessages = [] }: Options = {}) {
+export function useChat({ chatId: initialChatId, initialTitle, initialMessages = [] }: Options = {}) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [chatId, setChatId] = useState(initialChatId);
+  const [title, setTitle] = useState(initialTitle);
   const [streaming, setStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -51,6 +53,7 @@ export function useChat({ chatId: initialChatId, initialMessages = [] }: Options
         for await (const event of readEvents(response)) {
           if (event.type === "chat") {
             setChatId(event.chatId);
+            setTitle(event.title);
             // Put the chat's address in the URL without leaving this page.
             window.history.replaceState(null, "", `/chat/${event.chatId}`);
             notifyChatsChanged();
@@ -59,6 +62,13 @@ export function useChat({ chatId: initialChatId, initialMessages = [] }: Options
           } else if (event.type === "delta") {
             text += event.text;
             patch({ content: text });
+          } else if (event.type === "done") {
+            // The answer is complete; the title may still follow, but the user can type again.
+            patch({ status: "done" });
+            setStreaming(false);
+          } else if (event.type === "title") {
+            setTitle(event.title);
+            notifyChatsChanged();
           } else if (event.type === "error") {
             throw new Error(event.message);
           }
@@ -93,6 +103,7 @@ export function useChat({ chatId: initialChatId, initialMessages = [] }: Options
     abortRef.current?.abort();
     setMessages([]);
     setChatId(undefined);
+    setTitle(undefined);
   }, []);
 
   /** Re-asks the last question after an error; the server won't save it twice. */
@@ -105,5 +116,5 @@ export function useChat({ chatId: initialChatId, initialMessages = [] }: Options
     [messages, send],
   );
 
-  return { messages, streaming, send, stop, reset, retry };
+  return { messages, streaming, title, send, stop, reset, retry };
 }

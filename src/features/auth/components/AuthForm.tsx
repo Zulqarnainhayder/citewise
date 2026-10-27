@@ -21,7 +21,7 @@ export function AuthForm() {
 
   return (
     <>
-      <h1 className="text-3xl font-semibold tracking-tight text-brand-900 dark:text-white">
+      <h1 className="font-serif text-4xl font-semibold tracking-tight text-brand-900 dark:text-white">
         {isSignIn ? "Welcome back" : "Create your account"}
       </h1>
       <p className="mt-2 text-sm text-brand-600 dark:text-brand-300">

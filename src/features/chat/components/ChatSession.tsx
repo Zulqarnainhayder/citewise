@@ -10,25 +10,37 @@ import { ChatHistoryDialog } from "./ChatHistoryDialog";
 import { Composer } from "./Composer";
 import { EmptyState } from "./EmptyState";
 import { MessageList } from "./MessageList";
-import { ALL_DOCUMENTS, ScopePicker } from "./ScopePicker";
+import { ScopeChips } from "./ScopeChips";
 
 type Props = {
   chatId?: string;
+  initialTitle?: string;
   initialMessages?: ChatMessage[];
 };
 
-/** One conversation: the header, messages and composer. */
-export function ChatSession({ chatId, initialMessages }: Props) {
+/** One conversation: the header, messages, document scope and composer. */
+export function ChatSession({ chatId, initialTitle, initialMessages }: Props) {
   const router = useRouter();
   const { documents, loading } = useDocuments();
-  const { messages, streaming, send, stop, reset, retry } = useChat({ chatId, initialMessages });
-  const [scope, setScope] = useState(ALL_DOCUMENTS);
+  const { messages, streaming, title, send, stop, reset, retry } = useChat({
+    chatId,
+    initialTitle,
+    initialMessages,
+  });
   const [historyOpen, setHistoryOpen] = useState(false);
+  // null means "all ready documents", including ones added later.
+  const [chosen, setChosen] = useState<string[] | null>(null);
 
   const ready = useMemo(() => documents.filter((d) => d.status === "ready"), [documents]);
-  // A deleted or not-yet-ready document falls back to searching everything.
-  const activeScope = ready.some((d) => d.id === scope) ? scope : ALL_DOCUMENTS;
-  const documentIds = activeScope === ALL_DOCUMENTS ? undefined : [activeScope];
+  const readyIds = useMemo(() => ready.map((d) => d.id), [ready]);
+  const selected = chosen ? chosen.filter((id) => readyIds.includes(id)) : readyIds;
+  const documentIds = chosen === null ? undefined : selected;
+  const noneSelected = ready.length > 0 && selected.length === 0;
+
+  function toggle(id: string) {
+    const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
+    setChosen(next.length === readyIds.length ? null : next);
+  }
 
   const ask = (question: string) => void send(question, documentIds);
 
@@ -38,30 +50,50 @@ export function ChatSession({ chatId, initialMessages }: Props) {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-6.5rem)] flex-col lg:h-dvh">
+    <div className="flex h-[calc(100dvh-6.5rem)] flex-col bg-brand-50 lg:h-dvh dark:bg-brand-950">
       <ChatHeader
+        title={title}
         canReset={messages.length > 0}
         onNewChat={newChat}
         onOpenHistory={() => setHistoryOpen(true)}
-        scope={
-          ready.length > 0 && (
-            <ScopePicker documents={ready} value={activeScope} onChange={setScope} />
-          )
-        }
       />
 
       {messages.length === 0 ? (
-        <EmptyState hasReadyDocuments={ready.length > 0} loading={loading} onPick={ask} />
+        <EmptyState
+          documentCount={selected.length}
+          hasReadyDocuments={ready.length > 0}
+          loading={loading}
+          onPick={ask}
+        />
       ) : (
         <MessageList messages={messages} onRetry={() => retry(documentIds)} />
       )}
 
-      <Composer
-        streaming={streaming}
-        disabled={!loading && ready.length === 0}
-        onSend={ask}
-        onStop={stop}
-      />
+      <div className="bg-brand-50 pt-2 dark:bg-brand-950">
+        <Composer
+          streaming={streaming}
+          disabled={(!loading && ready.length === 0) || noneSelected}
+          placeholder={
+            noneSelected
+              ? "Select at least one document above to ask a question"
+              : ready.length === 0 && !loading
+                ? "Process a document to start asking questions"
+                : undefined
+          }
+          scope={
+            ready.length > 0 && (
+              <ScopeChips
+                documents={ready}
+                selected={selected}
+                onToggle={toggle}
+                onSelectAll={() => setChosen(null)}
+              />
+            )
+          }
+          onSend={ask}
+          onStop={stop}
+        />
+      </div>
 
       <ChatHistoryDialog open={historyOpen} onClose={() => setHistoryOpen(false)} />
     </div>
