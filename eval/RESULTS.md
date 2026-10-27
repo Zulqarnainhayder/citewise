@@ -1,16 +1,16 @@
 # Evaluation results
 
-Run on 2026-10-27 against `http://localhost:3000` with `gemini-3.5-flash-lite` answering. One run of 45 questions over 4 fictional documents (English and German).
+Run on 2026-10-27 against `http://localhost:3000` with `gemini-3.1-flash-lite` answering. One run of 49 questions over 4 fictional documents (English and German).
 
 | Measure | Result |
 | --- | --- |
-| Questions answered correctly and cited from the right page | **45/45 (100%)** |
-| Right document page found by search (answerable questions) | 36/36 (100%) |
-| Answer contains the correct fact | 36/36 (100%) |
-| Answer cites the right page | 36/36 (100%) |
-| Answerable questions wrongly refused | 0/36 |
+| Questions answered correctly and cited from the right page | **49/49 (100%)** |
+| Right document page found by search (answerable questions) | 40/40 (100%) |
+| Answer contains the correct fact | 40/40 (100%) |
+| Answer cites the right page | 40/40 (100%) |
+| Answerable questions wrongly refused | 1/40 |
 | Unanswerable questions correctly refused | 8/8 (100%) |
-| Time to first word (median / slowest 5%) | 1564 ms / 2038 ms |
+| Time to first word (median / slowest 5%) | 4012 ms / 12352 ms |
 
 ## By kind of question
 
@@ -19,6 +19,7 @@ Run on 2026-10-27 against `http://localhost:3000` with `gemini-3.5-flash-lite` a
 | Facts from one document | 19/19 |
 | Across languages | 3/3 |
 | Several documents at once | 5/5 |
+| Exact codes, numbers and addresses | 4/4 |
 | Reworded questions | 6/6 |
 | Small calculation or comparison | 3/3 |
 | Not in the documents (including a trap and a hijack attempt) | 8/8 |
@@ -55,6 +56,10 @@ Run on 2026-10-27 against `http://localhost:3000` with `gemini-3.5-flash-lite` a
 | pass | MD-interest | Is the late payment interest the same in both contracts? |  |
 | pass | MD-named | In the Vendor Contract, what is the liability cap? |  |
 | pass | MD-handbook | How many vacation days do employees have? |  |
+| pass | EX-schedule | What does schedule SCH-7B cover? |  |
+| pass | EX-po | What does purchase order PO-88214 cover? |  |
+| pass | EX-hotline | What is the support hotline number? |  |
+| pass | EX-email | Which email address handles invoice disputes? |  |
 | pass | P-warning | How much advance warning do we have to give if we want to end the contract? |  |
 | pass | P-late | What happens if a client does not pay on time? |  |
 | pass | P-breach | How long does a party get to fix a serious breach before the contract can end immediately? |  |

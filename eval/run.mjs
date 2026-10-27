@@ -176,7 +176,7 @@ try {
   const date = new Date().toISOString().slice(0, 10);
   writeFileSync(here("results.json"), JSON.stringify({ date, base: BASE, model: MODEL, summary, rows: rows.map((r) => ({ id: r.q.id, type: r.q.type, pass: r.verdict.pass, firstTokenMs: r.result.firstToken, note: r.verdict.note })) }, null, 2) + "\n");
 
-  const typeLabel = { fact: "Facts from one document", paraphrase: "Reworded questions", reasoning: "Small calculation or comparison", crosslanguage: "Across languages", multidoc: "Several documents at once", unanswerable: "Not in the documents (including a trap and a hijack attempt)", smalltalk: "Small talk" };
+  const typeLabel = { fact: "Facts from one document", exact: "Exact codes, numbers and addresses", paraphrase: "Reworded questions", reasoning: "Small calculation or comparison", crosslanguage: "Across languages", multidoc: "Several documents at once", unanswerable: "Not in the documents (including a trap and a hijack attempt)", smalltalk: "Small talk" };
   const md = [
     "# Evaluation results",
     "",

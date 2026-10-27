@@ -2,6 +2,8 @@
 
 import { memo } from "react";
 import { FileTextIcon, RefreshIcon, TrashIcon } from "@/components/icons";
+import { WorkspaceSelect } from "@/features/workspaces/components/WorkspaceSelect";
+import type { WorkspaceRow } from "@/features/workspaces/types";
 import type { DocumentRow } from "../types";
 import { formatDate } from "../utils";
 import { StatusBadge } from "./StatusBadge";
@@ -11,6 +13,8 @@ type Props = {
   /** Asks the parent to confirm and delete this document. */
   onDelete: (doc: DocumentRow) => void;
   onProcess: (doc: DocumentRow) => void;
+  workspaces: WorkspaceRow[];
+  onMove: (doc: DocumentRow, workspaceId: string | null) => void;
 };
 
 const iconButton =
@@ -21,7 +25,7 @@ function pageLabel(count: number | null) {
   return `${count} ${count === 1 ? "page" : "pages"}`;
 }
 
-export const DocumentItem = memo(function DocumentItem({ doc, onDelete, onProcess }: Props) {
+export const DocumentItem = memo(function DocumentItem({ doc, onDelete, onProcess, workspaces, onMove }: Props) {
   const canProcess = doc.status === "pending" || doc.status === "failed";
 
   return (
@@ -38,6 +42,15 @@ export const DocumentItem = memo(function DocumentItem({ doc, onDelete, onProces
             <span className="sm:hidden">{formatDate(doc.created_at)} · </span>
             {pageLabel(doc.page_count)}
           </p>
+          {workspaces.length > 0 && (
+            <WorkspaceSelect
+              workspaces={workspaces}
+              value={doc.workspace_id}
+              label={`Workspace for ${doc.title}`}
+              onChange={(id) => onMove(doc, id)}
+              className="mt-1.5"
+            />
+          )}
         </div>
       </div>
 

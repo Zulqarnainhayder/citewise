@@ -16,8 +16,8 @@ export type LimitResult =
   | { allowed: true }
   | { allowed: false; message: string; retryAfterSeconds: number };
 
-const MINUTE_MS = 60_000;
-const DAY_MS = 24 * 60 * 60 * 1000;
+export const MINUTE_MS = 60_000;
+export const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** Decides whether another question is allowed, given how many were asked recently. */
 export function evaluateChatLimit(
@@ -57,7 +57,7 @@ export function evaluateDocumentLimit(
   return { allowed: true };
 }
 
-async function countSince(
+export async function countSince(
   supabase: SupabaseClient,
   table: "messages" | "documents",
   userId: string,

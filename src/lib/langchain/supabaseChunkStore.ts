@@ -7,11 +7,14 @@ export type ChunkFilter = { documentIds?: string[] };
 export type AddChunkOptions = { documentId: string; userId: string };
 
 type MatchRow = {
+  id: string;
   document_id: string;
   page_number: number;
   content: string;
   similarity: number;
 };
+
+type KeywordRow = Omit<MatchRow, "similarity"> & { rank: number };
 
 const INSERT_BATCH_SIZE = 100;
 
@@ -74,9 +77,30 @@ export class SupabaseChunkStore extends VectorStore {
     return ((data ?? []) as MatchRow[]).map((row): [Document, number] => [
       new Document({
         pageContent: row.content,
-        metadata: { documentId: row.document_id, page: row.page_number },
+        metadata: { chunkId: row.id, documentId: row.document_id, page: row.page_number },
       }),
       row.similarity,
     ]);
+  }
+
+  /**
+   * The `k` chunks that best match some keywords (full-text search, any keyword may match),
+   * best first. Needs the `keyword_match_chunks` function from migration 0002.
+   */
+  async keywordSearch(terms: string[], k: number, filter?: ChunkFilter): Promise<Document[]> {
+    const { data, error } = await this.client.rpc("keyword_match_chunks", {
+      query_terms: terms,
+      match_count: k,
+      filter_document_ids: filter?.documentIds?.length ? filter.documentIds : null,
+    });
+    if (error) throw new Error(error.message);
+
+    return ((data ?? []) as KeywordRow[]).map(
+      (row) =>
+        new Document({
+          pageContent: row.content,
+          metadata: { chunkId: row.id, documentId: row.document_id, page: row.page_number },
+        }),
+    );
   }
 }

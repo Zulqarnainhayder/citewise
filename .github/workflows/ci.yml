@@ -28,3 +28,55 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
           GOOGLE_API_KEY: ci-placeholder
+
+  e2e:
+    name: Browser tests
+    runs-on: ubuntu-latest
+    needs: checks
+    # Real keys are needed (the tests sign in as temporary users and call Gemini). They are repository
+    # secrets, which GitHub does not give to pull requests from forks, so those runs skip this job.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+    steps:
+      - name: Check for secrets
+        id: secrets
+        run: |
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ] || [ -z "$GOOGLE_API_KEY" ]; then
+            echo "::notice::Browser tests skipped: add the repository secrets listed in the README."
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.available == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.secrets.outputs.available == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - if: steps.secrets.outputs.available == 'true'
+        run: npm ci
+
+      - if: steps.secrets.outputs.available == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - if: steps.secrets.outputs.available == 'true'
+        run: npm run build
+
+      - if: steps.secrets.outputs.available == 'true'
+        run: npm run e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

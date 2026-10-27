@@ -81,8 +81,7 @@ The screenshots use made-up documents.
 6. **Sign out**.
 
 Each upload is processed automatically: you can watch it go from Uploaded to
-Processing to Ready, with a page count. Failed documents (for example scanned,
-image-only PDFs) show a clear reason and a retry button. Open **Chat** to ask
+Processing to Ready, with a page count. Scanned PDFs are read with OCR (up to 15 scanned pages). Failed documents show a clear reason and a retry button. Open **Chat** to ask
 questions about all your ready documents, or just one, and see which pages each
 answer came from. Chats are saved automatically, so you can leave and come back to them
 from the **Recent chats** list.
@@ -97,13 +96,12 @@ from the **Recent chats** list.
 **Phase 2: what sets it apart**
 - Clickable page citations that open the PDF at the right page
 - Saved chat history with a sidebar of past chats
-- Workspaces that group documents, such as "Uni notes" or "Contracts"
+- ~~Workspaces~~ that group documents, such as "Uni notes" or "Contracts" (done)
 - English and German, including cross-language questions
 - Honest answers: "not found in your documents" instead of guessing
 - An automatic summary and suggested questions after each upload
 
 **Phase 3: advanced**
-- Hybrid keyword and semantic search with reranking
 - An evaluation set with a published accuracy score
 - A switchable model provider (Gemini, OpenAI, Claude or a local model)
 - More file types: Word, text and web pages
@@ -261,13 +259,21 @@ Open [http://localhost:3000](http://localhost:3000). You will be sent to the log
 
 ## Testing and evaluation
 
-**Automated tests.** `npm test` runs 71 unit tests with [Vitest](https://vitest.dev). They cover the logic that
+**Automated tests.** `npm test` runs 100+ unit tests with [Vitest](https://vitest.dev). They cover the logic that
 needs no network: the highlight matcher, the citation parser, the page-aware splitter, request validation,
 the usage limits, the prompt, file checks and the evaluation scorer itself. **GitHub Actions**
 ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs lint, the type check, the tests and a production build on every
 push and pull request.
 
-**Accuracy evaluation.** [`eval/`](eval/) is a small benchmark that asks the real app 45 questions about four
+**Browser tests.** `npm run e2e` runs [Playwright](https://playwright.dev) tests in `e2e/`: sign-in, the document
+library, workspaces, settings, the theme, and (with real Gemini calls) uploading a PDF, asking a question,
+opening the cited page, refusing an unanswerable question, and reading a scanned PDF with OCR. Each test creates
+a temporary user and deletes it afterwards. CI runs them in a second job when these repository secrets exist:
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_API_KEY`;
+without them the job skips itself. The free Gemini tier allows about 500 chat requests per model per day, which
+is why the AI tests are few.
+
+**Accuracy evaluation.** [`eval/`](eval/) is a small benchmark that asks the real app 49 questions about four
 fictional documents (two similar English contracts with different numbers, a German handbook and a resume)
 and scores every answer automatically. The questions include reworded ones, ones that need a small
 calculation or comparison, ones that mix several documents, ones in the other language, a "trap" about a fact
@@ -276,14 +282,14 @@ documents cannot answer.
 
 | Measure | Result |
 | --- | --- |
-| Correct answer and correct cited page | **45/45 (100%)** |
-| Right page found by search | 36/36 |
-| Answer has the correct fact | 36/36 |
-| Cites the right page | 36/36 |
+| Correct answer and correct cited page | **49/49 (100%)** |
+| Right page found by search | 40/40 |
+| Answer has the correct fact | 40/40 |
+| Cites the right page | 40/40 |
 | Unanswerable questions correctly refused | 8/8 |
-| Time to first word (median / slowest 5%) | 1564 ms / 2038 ms |
+| Time to first word (median / slowest 5%) | 4012 ms / 12352 ms |
 
-Full per-question results are in [`eval/RESULTS.md`](eval/RESULTS.md). Read the score with its limits in mind:
+One run with hybrid search on `gemini-3.1-flash-lite`, because the usual `gemini-3.5-flash-lite` daily free quota was used up. The same questions with meaning-only search scored 48/49 (one server error, not a retrieval miss), so this run does not show hybrid is more accurate. Full per-question results are in [`eval/RESULTS.md`](eval/RESULTS.md). Read the score with its limits in mind:
 the documents are short and fictional, it is a single run, and the scoring is automatic string matching (the scorer
 has its own tests that feed it wrong answers and check that it rejects them). It shows the pipeline works as
 designed, not how it performs on long, messy real documents. I also checked the app with scripted real-browser
@@ -392,15 +398,15 @@ script before first paint.
 - [x] Page-by-page text extraction, chunking and embeddings
 - [x] Question answering with streamed responses and page citations
 - [x] Chat history sidebar
-- [ ] Workspaces
+- [x] Workspaces and a Settings page (account, theme, usage, delete your data)
 - [x] Clickable citations that open the PDF at the right page, with the passage highlighted
 - [x] Evaluation set with automatic scoring (see `eval/`)
 - [x] Unit tests and GitHub Actions CI
 - [x] Deployment on Vercel
 - [x] Per-user usage limits
-- [ ] Hybrid keyword and meaning search with reranking
-- [ ] OCR for scanned PDFs
-- [ ] Browser end-to-end tests in CI
+- [x] Hybrid keyword and meaning search with reranking (needs `supabase/migrations/0002_hybrid_search.sql`)
+- [x] OCR for scanned PDFs (Gemini reads pages that have no text layer)
+- [x] Browser end-to-end tests in CI (Playwright)
 
 ## Acknowledgements
 

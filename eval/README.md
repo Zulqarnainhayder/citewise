@@ -1,7 +1,7 @@
 # Evaluation
 
 An automatic test of answer quality. It uploads four fictional documents (two English contracts with
-different numbers, a German employee handbook and an English resume), asks about 45 questions through the real
+different numbers, a German employee handbook and an English resume), asks about 49 questions through the real
 chat API and scores each answer.
 
 ```bash

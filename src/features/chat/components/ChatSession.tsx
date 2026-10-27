@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { PdfViewerPanel } from "@/features/viewer/components/PdfViewerPanel";
 import { ViewerProvider } from "@/features/viewer/components/ViewerProvider";
 import { useDocuments } from "@/features/documents/hooks/useDocuments";
+import { useWorkspaces } from "@/features/workspaces/hooks/useWorkspaces";
 import { useChat } from "../hooks/useChat";
 import type { ChatMessage } from "../types";
 import { ChatHeader } from "./ChatHeader";
@@ -24,6 +25,9 @@ type Props = {
 export function ChatSession({ chatId, initialTitle, initialMessages }: Props) {
   const router = useRouter();
   const { documents, loading } = useDocuments();
+  const { workspaces } = useWorkspaces();
+  // /chat?workspace=<id> (from the Workspaces page) starts the chat inside one workspace.
+  const [workspaceId, setWorkspaceId] = useState<string | null>(useSearchParams().get("workspace"));
   const { messages, streaming, title, send, stop, reset, retry } = useChat({
     chatId,
     initialTitle,
@@ -34,10 +38,20 @@ export function ChatSession({ chatId, initialTitle, initialMessages }: Props) {
   const [chosen, setChosen] = useState<string[] | null>(null);
 
   const ready = useMemo(() => documents.filter((d) => d.status === "ready"), [documents]);
-  const readyIds = useMemo(() => ready.map((d) => d.id), [ready]);
+  // Documents the chat may read: everything ready, or just the chosen workspace.
+  const inScope = useMemo(
+    () => (workspaceId ? ready.filter((d) => d.workspace_id === workspaceId) : ready),
+    [ready, workspaceId],
+  );
+  const readyIds = useMemo(() => inScope.map((d) => d.id), [inScope]);
   const selected = chosen ? chosen.filter((id) => readyIds.includes(id)) : readyIds;
-  const documentIds = chosen === null ? undefined : selected;
+  const documentIds = chosen === null && !workspaceId ? undefined : selected;
   const noneSelected = ready.length > 0 && selected.length === 0;
+
+  function changeWorkspace(id: string | null) {
+    setWorkspaceId(id);
+    setChosen(null);
+  }
 
   function toggle(id: string) {
     const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
@@ -87,7 +101,10 @@ export function ChatSession({ chatId, initialTitle, initialMessages }: Props) {
               scope={
                 ready.length > 0 && (
                   <ScopeChips
-                    documents={ready}
+                    documents={inScope}
+                    workspaces={workspaces}
+                    workspaceId={workspaceId}
+                    onWorkspaceChange={changeWorkspace}
                     selected={selected}
                     onToggle={toggle}
                     onSelectAll={() => setChosen(null)}

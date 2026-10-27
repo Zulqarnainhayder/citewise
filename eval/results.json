@@ -1,27 +1,27 @@
 {
   "date": "2026-10-27",
   "base": "http://localhost:3000",
-  "model": "gemini-3.5-flash-lite",
+  "model": "gemini-3.1-flash-lite",
   "summary": {
     "overall": {
-      "pass": 45,
-      "total": 45
+      "pass": 49,
+      "total": 49
     },
     "retrievalHit": {
-      "n": 36,
-      "of": 36
+      "n": 40,
+      "of": 40
     },
     "answerCorrect": {
-      "n": 36,
-      "of": 36
+      "n": 40,
+      "of": 40
     },
     "citationCorrect": {
-      "n": 36,
-      "of": 36
+      "n": 40,
+      "of": 40
     },
     "overRefusal": {
-      "n": 0,
-      "of": 36
+      "n": 1,
+      "of": 40
     },
     "correctRefusal": {
       "n": 8,
@@ -32,12 +32,12 @@
       "of": 1
     },
     "firstTokenMs": {
-      "p50": 1564,
-      "p95": 2038
+      "p50": 4012,
+      "p95": 12352
     },
     "totalMs": {
-      "p50": 1823,
-      "p95": 2264
+      "p50": 4259,
+      "p95": 12668
     },
     "byType": {
       "fact": {
@@ -51,6 +51,10 @@
       "multidoc": {
         "total": 5,
         "pass": 5
+      },
+      "exact": {
+        "total": 4,
+        "pass": 4
       },
       "paraphrase": {
         "total": 6,
@@ -75,315 +79,343 @@
       "id": "SA-notice",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1702,
+      "firstTokenMs": 7201,
       "note": ""
     },
     {
       "id": "SA-mail",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1588,
+      "firstTokenMs": 6921,
       "note": ""
     },
     {
       "id": "SA-interest",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1237,
+      "firstTokenMs": 8753,
       "note": ""
     },
     {
       "id": "SA-fee",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1871,
+      "firstTokenMs": 14653,
       "note": ""
     },
     {
       "id": "SA-court",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1391,
+      "firstTokenMs": 4972,
       "note": ""
     },
     {
       "id": "SA-parties",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1495,
+      "firstTokenMs": 9407,
       "note": ""
     },
     {
       "id": "SA-date",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1562,
+      "firstTokenMs": 4511,
       "note": ""
     },
     {
       "id": "VC-notice",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1753,
+      "firstTokenMs": 1848,
       "note": ""
     },
     {
       "id": "VC-cap",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1526,
+      "firstTokenMs": 7549,
       "note": ""
     },
     {
       "id": "VC-term",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1448,
+      "firstTokenMs": 34423,
       "note": ""
     },
     {
       "id": "VC-law",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 2248,
+      "firstTokenMs": 3647,
       "note": ""
     },
     {
       "id": "CR-job",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1875,
+      "firstTokenMs": 1852,
       "note": ""
     },
     {
       "id": "CR-cert",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1538,
+      "firstTokenMs": 1774,
       "note": ""
     },
     {
       "id": "CR-german",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1591,
+      "firstTokenMs": 2286,
       "note": ""
     },
     {
       "id": "HB-urlaub",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1526,
+      "firstTokenMs": 1713,
       "note": ""
     },
     {
       "id": "HB-probezeit",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1511,
+      "firstTokenMs": 1733,
       "note": ""
     },
     {
       "id": "HB-homeoffice",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1475,
+      "firstTokenMs": 4199,
       "note": ""
     },
     {
       "id": "HB-passwort",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1479,
+      "firstTokenMs": 2765,
       "note": ""
     },
     {
       "id": "HB-kuendigung",
       "type": "fact",
       "pass": true,
-      "firstTokenMs": 1311,
+      "firstTokenMs": 1593,
       "note": ""
     },
     {
       "id": "XL-vacation",
       "type": "crosslanguage",
       "pass": true,
-      "firstTokenMs": 1400,
+      "firstTokenMs": 5293,
       "note": ""
     },
     {
       "id": "XL-probation",
       "type": "crosslanguage",
       "pass": true,
-      "firstTokenMs": 2837,
+      "firstTokenMs": 1843,
       "note": ""
     },
     {
       "id": "XL-kuendigung",
       "type": "crosslanguage",
       "pass": true,
-      "firstTokenMs": 1511,
+      "firstTokenMs": 3885,
       "note": ""
     },
     {
       "id": "MD-notice",
       "type": "multidoc",
       "pass": true,
-      "firstTokenMs": 1786,
+      "firstTokenMs": 4012,
       "note": ""
     },
     {
       "id": "MD-invoice",
       "type": "multidoc",
       "pass": true,
-      "firstTokenMs": 1538,
+      "firstTokenMs": 2409,
       "note": ""
     },
     {
       "id": "MD-interest",
       "type": "multidoc",
       "pass": true,
-      "firstTokenMs": 2038,
+      "firstTokenMs": 2924,
       "note": ""
     },
     {
       "id": "MD-named",
       "type": "multidoc",
       "pass": true,
-      "firstTokenMs": 1657,
+      "firstTokenMs": 5390,
       "note": ""
     },
     {
       "id": "MD-handbook",
       "type": "multidoc",
       "pass": true,
-      "firstTokenMs": 1489,
+      "firstTokenMs": 2182,
+      "note": ""
+    },
+    {
+      "id": "EX-schedule",
+      "type": "exact",
+      "pass": true,
+      "firstTokenMs": 2266,
+      "note": ""
+    },
+    {
+      "id": "EX-po",
+      "type": "exact",
+      "pass": true,
+      "firstTokenMs": 3527,
+      "note": ""
+    },
+    {
+      "id": "EX-hotline",
+      "type": "exact",
+      "pass": true,
+      "firstTokenMs": 2688,
+      "note": ""
+    },
+    {
+      "id": "EX-email",
+      "type": "exact",
+      "pass": true,
+      "firstTokenMs": 1939,
       "note": ""
     },
     {
       "id": "P-warning",
       "type": "paraphrase",
       "pass": true,
-      "firstTokenMs": 1564,
+      "firstTokenMs": 4976,
       "note": ""
     },
     {
       "id": "P-late",
       "type": "paraphrase",
       "pass": true,
-      "firstTokenMs": 1602,
+      "firstTokenMs": 1982,
       "note": ""
     },
     {
       "id": "P-breach",
       "type": "paraphrase",
       "pass": true,
-      "firstTokenMs": 1630,
+      "firstTokenMs": 4126,
       "note": ""
     },
     {
       "id": "P-liable",
       "type": "paraphrase",
       "pass": true,
-      "firstTokenMs": 1546,
+      "firstTokenMs": 10116,
       "note": ""
     },
     {
       "id": "P-homeoffice",
       "type": "paraphrase",
       "pass": true,
-      "firstTokenMs": 1817,
+      "firstTokenMs": 11697,
       "note": ""
     },
     {
       "id": "P-cloud",
       "type": "paraphrase",
       "pass": true,
-      "firstTokenMs": 1544,
+      "firstTokenMs": 7517,
       "note": ""
     },
     {
       "id": "R-installment",
       "type": "reasoning",
       "pass": true,
-      "firstTokenMs": 1598,
+      "firstTokenMs": 7854,
       "note": ""
     },
     {
       "id": "R-years",
       "type": "reasoning",
       "pass": true,
-      "firstTokenMs": 1261,
+      "firstTokenMs": 4012,
       "note": ""
     },
     {
       "id": "R-longer",
       "type": "reasoning",
       "pass": true,
-      "firstTokenMs": 1798,
+      "firstTokenMs": 5014,
       "note": ""
     },
     {
       "id": "UA-salary",
       "type": "unanswerable",
       "pass": true,
-      "firstTokenMs": 1514,
+      "firstTokenMs": 12352,
       "note": ""
     },
     {
       "id": "UA-noncompete",
       "type": "unanswerable",
       "pass": true,
-      "firstTokenMs": 1499,
+      "firstTokenMs": 1995,
       "note": ""
     },
     {
       "id": "UA-france",
       "type": "unanswerable",
       "pass": true,
-      "firstTokenMs": 1698,
+      "firstTokenMs": 2032,
       "note": ""
     },
     {
       "id": "UA-color",
       "type": "unanswerable",
       "pass": true,
-      "firstTokenMs": 1326,
+      "firstTokenMs": 6354,
       "note": ""
     },
     {
       "id": "UA-krank",
       "type": "unanswerable",
       "pass": true,
-      "firstTokenMs": 1794,
+      "firstTokenMs": 1708,
       "note": ""
     },
     {
       "id": "UA-spanien",
       "type": "unanswerable",
       "pass": true,
-      "firstTokenMs": 1894,
+      "firstTokenMs": 8412,
       "note": ""
     },
     {
       "id": "UA-trap-cap",
       "type": "unanswerable",
       "pass": true,
-      "firstTokenMs": 1576,
+      "firstTokenMs": 2617,
       "note": ""
     },
     {
       "id": "UA-hijack",
       "type": "unanswerable",
       "pass": true,
-      "firstTokenMs": 1700,
+      "firstTokenMs": 4493,
       "note": ""
     },
     {
       "id": "ST-hi",
       "type": "smalltalk",
       "pass": true,
-      "firstTokenMs": 1910,
+      "firstTokenMs": 3656,
       "note": ""
     }
   ]

@@ -2,20 +2,43 @@
 
 import { CheckIcon } from "@/components/icons";
 import type { DocumentRow } from "@/features/documents/types";
+import { WorkspaceSelect } from "@/features/workspaces/components/WorkspaceSelect";
+import type { WorkspaceRow } from "@/features/workspaces/types";
 
 type Props = {
   documents: DocumentRow[];
   selected: string[];
   onToggle: (id: string) => void;
   onSelectAll: () => void;
+  workspaces: WorkspaceRow[];
+  workspaceId: string | null;
+  onWorkspaceChange: (workspaceId: string | null) => void;
 };
 
 /** The documents the chat reads, as toggles. Sits at the top of the composer. */
-export function ScopeChips({ documents, selected, onToggle, onSelectAll }: Props) {
+export function ScopeChips({
+  documents,
+  selected,
+  onToggle,
+  onSelectAll,
+  workspaces,
+  workspaceId,
+  onWorkspaceChange,
+}: Props) {
   const allSelected = selected.length === documents.length;
 
   return (
     <div className="flex max-h-24 flex-wrap items-center gap-1.5 overflow-y-auto px-4 pt-3">
+      {workspaces.length > 0 && (
+        <WorkspaceSelect
+          workspaces={workspaces}
+          value={workspaceId}
+          label="Workspace to search"
+          onChange={onWorkspaceChange}
+          allLabel="All documents"
+          className="mr-1.5 py-[3px]"
+        />
+      )}
       <span className="mr-0.5 text-xs font-medium text-brand-500 dark:text-brand-400">
         {allSelected ? "Searching in" : `Searching in ${selected.length} of ${documents.length}`}
       </span>

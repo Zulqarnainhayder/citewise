@@ -2,7 +2,7 @@
 // (`answer`: every group must match, and a group matches if ANY of its words appears),
 // and which document page it should cite (`cites`).
 //
-// type: fact | paraphrase | reasoning | crosslanguage | multidoc | unanswerable | smalltalk
+// type: fact | exact | paraphrase | reasoning | crosslanguage | multidoc | unanswerable | smalltalk
 
 const SA = "serviceAgreement";
 const VC = "vendorContract";
@@ -44,6 +44,12 @@ export const QUESTIONS = [
   { id: "MD-interest", type: "multidoc", scope: "all", question: "Is the late payment interest the same in both contracts?", answer: [["2 percent", "2%", "2 %"], ["1.5"]], cites: [{ doc: SA, page: 3 }, { doc: VC, page: 2 }] },
   { id: "MD-named", type: "multidoc", scope: "all", question: "In the Vendor Contract, what is the liability cap?", answer: [["100,000", "100.000", "100000"]], cites: [{ doc: VC, page: 2 }] },
   { id: "MD-handbook", type: "multidoc", scope: "all", question: "How many vacation days do employees have?", answer: [["28"]], cites: [{ doc: HB, page: 1 }] },
+
+  // --- exact codes, numbers and addresses: the case keyword search exists for ---
+  { id: "EX-schedule", type: "exact", scope: "all", question: "What does schedule SCH-7B cover?", answer: [["service credit"]], cites: [{ doc: VC, page: 2 }] },
+  { id: "EX-po", type: "exact", scope: "all", question: "What does purchase order PO-88214 cover?", answer: [["40 servers", "40"]], cites: [{ doc: VC, page: 2 }] },
+  { id: "EX-hotline", type: "exact", scope: "all", question: "What is the support hotline number?", answer: [["555 0199", "5550199", "555-0199"]], cites: [{ doc: VC, page: 2 }] },
+  { id: "EX-email", type: "exact", scope: "all", question: "Which email address handles invoice disputes?", answer: [["billing@globex.example"]], cites: [{ doc: VC, page: 2 }] },
 
   // --- reworded: the question shares few words with the document ---
   { id: "P-warning", type: "paraphrase", scope: [SA], question: "How much advance warning do we have to give if we want to end the contract?", answer: [["30", "thirty"]], cites: [{ doc: SA, page: 2 }] },

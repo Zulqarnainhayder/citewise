@@ -6,6 +6,7 @@ export type DocumentRow = {
   status: DocumentStatus;
   storage_path: string;
   page_count: number | null;
+  workspace_id: string | null;
   created_at: string;
 };
 

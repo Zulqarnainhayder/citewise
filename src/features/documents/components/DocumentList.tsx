@@ -1,6 +1,7 @@
 import { Alert } from "@/components/ui/Alert";
 import { Card } from "@/components/ui/Card";
 import { Spinner } from "@/components/ui/Spinner";
+import type { WorkspaceRow } from "@/features/workspaces/types";
 import type { DocumentRow } from "../types";
 import { DocumentItem } from "./DocumentItem";
 
@@ -13,9 +14,11 @@ type Props = {
   query: string;
   onDelete: (doc: DocumentRow) => void;
   onProcess: (doc: DocumentRow) => void;
+  workspaces: WorkspaceRow[];
+  onMove: (doc: DocumentRow, workspaceId: string | null) => void;
 };
 
-export function DocumentList({ documents, loading, error, uploading, query, onDelete, onProcess }: Props) {
+export function DocumentList({ documents, loading, error, uploading, query, onDelete, onProcess, workspaces, onMove }: Props) {
   if (loading) {
     return (
       <Card className="flex items-center justify-center gap-2 py-12 text-sm text-brand-600 dark:text-brand-300">
@@ -57,7 +60,14 @@ export function DocumentList({ documents, loading, error, uploading, query, onDe
       </div>
       <ul className="divide-y divide-brand-200 dark:divide-brand-800">
         {documents.map((doc) => (
-          <DocumentItem key={doc.id} doc={doc} onDelete={onDelete} onProcess={onProcess} />
+          <DocumentItem
+            key={doc.id}
+            doc={doc}
+            onDelete={onDelete}
+            onProcess={onProcess}
+            workspaces={workspaces}
+            onMove={onMove}
+          />
         ))}
       </ul>
     </Card>

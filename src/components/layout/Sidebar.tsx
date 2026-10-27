@@ -21,8 +21,8 @@ export function Sidebar() {
           <nav aria-label="Main" className="space-y-0.5 px-3">
             <NewChatLink />
             <NavItem label="Documents" icon={<FolderIcon className={iconClass} />} href="/" />
-            <NavItem label="Workspaces" icon={<LayersIcon className={iconClass} />} soon />
-            <NavItem label="Settings" icon={<SettingsIcon className={iconClass} />} soon />
+            <NavItem label="Workspaces" icon={<LayersIcon className={iconClass} />} href="/workspaces" />
+            <NavItem label="Settings" icon={<SettingsIcon className={iconClass} />} href="/settings" />
           </nav>
 
           <section aria-label="Recent chats" className="mt-5 flex min-h-0 flex-1 flex-col px-3">

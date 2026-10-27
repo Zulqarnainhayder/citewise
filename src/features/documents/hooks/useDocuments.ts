@@ -52,5 +52,19 @@ export function useDocuments() {
     [supabase],
   );
 
-  return { documents, loading, error, add, update, remove };
+  /** Puts a document in a workspace (null for none). Resolves to an error message, or null. */
+  const move = useCallback(
+    async (id: string, workspaceId: string | null): Promise<string | null> => {
+      const { error } = await supabase
+        .from("documents")
+        .update({ workspace_id: workspaceId })
+        .eq("id", id);
+      if (error) return error.message;
+      setDocuments((prev) => prev.map((d) => (d.id === id ? { ...d, workspace_id: workspaceId } : d)));
+      return null;
+    },
+    [supabase],
+  );
+
+  return { documents, loading, error, add, update, remove, move };
 }

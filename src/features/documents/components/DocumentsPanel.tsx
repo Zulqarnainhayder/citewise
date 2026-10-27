@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { SearchInput } from "@/components/ui/SearchInput";
+import { useWorkspaces } from "@/features/workspaces/hooks/useWorkspaces";
 import { useDocuments } from "../hooks/useDocuments";
 import { useProcessing } from "../hooks/useProcessing";
 import { useUploader } from "../hooks/useUploader";
@@ -14,7 +15,9 @@ import { Dropzone } from "./Dropzone";
 import { UploadQueue } from "./UploadQueue";
 
 export function DocumentsPanel() {
-  const { documents, loading, error, add, update, remove } = useDocuments();
+  const { documents, loading, error, add, update, remove, move } = useDocuments();
+  const { workspaces } = useWorkspaces();
+  const [moveError, setMoveError] = useState<string | null>(null);
   const { process, error: processError } = useProcessing(update);
 
   // Every new upload is processed straight away.
@@ -47,6 +50,14 @@ export function DocumentsPanel() {
     setPendingDelete(null);
   }
 
+  const moveTo = useCallback(
+    async (doc: DocumentRow, workspaceId: string | null) => {
+      const message = await move(doc.id, workspaceId);
+      setMoveError(message ? `Could not move "${doc.title}": ${message}` : null);
+    },
+    [move],
+  );
+
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return needle
@@ -54,7 +65,7 @@ export function DocumentsPanel() {
       : documents;
   }, [documents, query]);
 
-  const message = notice ?? deleteError ?? processError;
+  const message = notice ?? deleteError ?? moveError ?? processError;
   const uploading = uploads.some((u) => u.state === "uploading");
 
   return (
@@ -102,6 +113,8 @@ export function DocumentsPanel() {
           uploading={uploading}
           onDelete={requestDelete}
           onProcess={process}
+          workspaces={workspaces}
+          onMove={moveTo}
         />
       </section>
 
