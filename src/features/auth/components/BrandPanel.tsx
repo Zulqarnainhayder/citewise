@@ -21,8 +21,8 @@ export function BrandPanel() {
           <span className="block text-accent-400">Every answer cites its page.</span>
         </h2>
         <p className="mt-5 text-base leading-relaxed text-brand-100">
-          Upload your PDFs, ask questions in English or German, and jump
-          straight to the passage behind every answer.
+          Upload your PDFs, even scans, ask questions in English or German, and
+          jump straight to the passage behind every answer.
         </p>
         <CitationPreview />
       </div>

@@ -12,8 +12,8 @@ const features = [
     Icon: LockIcon,
   },
   {
-    title: "English & German",
-    text: "Ask in one language, read the other.",
+    title: "English, German & scans",
+    text: "Ask in one language, read the other. Scanned PDFs are read too.",
     Icon: GlobeIcon,
   },
 ];
