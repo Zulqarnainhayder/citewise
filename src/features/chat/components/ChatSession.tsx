@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { PdfViewerPanel } from "@/features/viewer/components/PdfViewerPanel";
+import { ViewerProvider } from "@/features/viewer/components/ViewerProvider";
 import { useDocuments } from "@/features/documents/hooks/useDocuments";
 import { useChat } from "../hooks/useChat";
 import type { ChatMessage } from "../types";
@@ -18,7 +20,7 @@ type Props = {
   initialMessages?: ChatMessage[];
 };
 
-/** One conversation: the header, messages, document scope and composer. */
+/** One conversation: the chat on the left and, when a citation is opened, the PDF on the right. */
 export function ChatSession({ chatId, initialTitle, initialMessages }: Props) {
   const router = useRouter();
   const { documents, loading } = useDocuments();
@@ -50,52 +52,57 @@ export function ChatSession({ chatId, initialTitle, initialMessages }: Props) {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-6.5rem)] flex-col bg-brand-50 lg:h-dvh dark:bg-brand-950">
-      <ChatHeader
-        title={title}
-        canReset={messages.length > 0}
-        onNewChat={newChat}
-        onOpenHistory={() => setHistoryOpen(true)}
-      />
+    <ViewerProvider>
+      <div className="flex h-[calc(100dvh-6.5rem)] bg-brand-50 lg:h-dvh dark:bg-brand-950">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <ChatHeader
+            title={title}
+            canReset={messages.length > 0}
+            onNewChat={newChat}
+            onOpenHistory={() => setHistoryOpen(true)}
+          />
 
-      {messages.length === 0 ? (
-        <EmptyState
-          documentCount={selected.length}
-          hasReadyDocuments={ready.length > 0}
-          loading={loading}
-          onPick={ask}
-        />
-      ) : (
-        <MessageList messages={messages} onRetry={() => retry(documentIds)} />
-      )}
+          {messages.length === 0 ? (
+            <EmptyState
+              documentCount={selected.length}
+              hasReadyDocuments={ready.length > 0}
+              loading={loading}
+              onPick={ask}
+            />
+          ) : (
+            <MessageList messages={messages} onRetry={() => retry(documentIds)} />
+          )}
 
-      <div className="bg-brand-50 pt-2 dark:bg-brand-950">
-        <Composer
-          streaming={streaming}
-          disabled={(!loading && ready.length === 0) || noneSelected}
-          placeholder={
-            noneSelected
-              ? "Select at least one document above to ask a question"
-              : ready.length === 0 && !loading
-                ? "Process a document to start asking questions"
-                : undefined
-          }
-          scope={
-            ready.length > 0 && (
-              <ScopeChips
-                documents={ready}
-                selected={selected}
-                onToggle={toggle}
-                onSelectAll={() => setChosen(null)}
-              />
-            )
-          }
-          onSend={ask}
-          onStop={stop}
-        />
+          <div className="bg-brand-50 pt-2 dark:bg-brand-950">
+            <Composer
+              streaming={streaming}
+              disabled={(!loading && ready.length === 0) || noneSelected}
+              placeholder={
+                noneSelected
+                  ? "Select at least one document above to ask a question"
+                  : ready.length === 0 && !loading
+                    ? "Process a document to start asking questions"
+                    : undefined
+              }
+              scope={
+                ready.length > 0 && (
+                  <ScopeChips
+                    documents={ready}
+                    selected={selected}
+                    onToggle={toggle}
+                    onSelectAll={() => setChosen(null)}
+                  />
+                )
+              }
+              onSend={ask}
+              onStop={stop}
+            />
+          </div>
+        </div>
+
+        <PdfViewerPanel />
+        <ChatHistoryDialog open={historyOpen} onClose={() => setHistoryOpen(false)} />
       </div>
-
-      <ChatHistoryDialog open={historyOpen} onClose={() => setHistoryOpen(false)} />
-    </div>
+    </ViewerProvider>
   );
 }

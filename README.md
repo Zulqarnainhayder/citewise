@@ -23,8 +23,9 @@ returning a block of text you have to trust, it will show the exact page of the 
 document each answer came from, so you can check it in one click.
 
 > **Status: early development.** Authentication, the database schema, the dashboard,
-> PDF upload, PDF processing, and chat with page citations and saved chat history are done.
-> Workspaces and a PDF viewer that opens at the cited page are next. See the [roadmap](#roadmap) for what is built and what is planned.
+> PDF upload, PDF processing, chat with page citations, saved chat history and a PDF viewer
+> that opens at the cited page with the passage highlighted are done. Workspaces, an
+> evaluation set and deployment are next. See the [roadmap](#roadmap) for what is built and what is planned.
 
 ## What works today
 
@@ -39,6 +40,7 @@ document each answer came from, so you can check it in one click.
 | PDF upload | Done | Drag and drop or file picker, PDF only, up to 10 MB each, up to 5 at once, straight to private storage |
 | PDF processing | Done | Text extracted page by page, split into overlapping chunks, embedded with Gemini (768 dimensions) and saved with page numbers. Status moves Uploaded, Processing, Ready or Failed, with a retry button |
 | Chat with page citations | Done | Streamed answers from a Gemini chat model, grounded only in your documents (choose which documents to search; with several, answers name each document and keep their facts separate), with `[n]` citation badges and expandable source passages. Says "I couldn't find that in your documents" instead of guessing. Works across English and German |
+| PDF viewer with highlighted citations | Done | "View in PDF" on any cited passage opens the document beside the chat at the exact page, with the passage highlighted. Page controls, open in a new tab, full screen on phones. The PDF is fetched from private storage and drawn in the browser with PDF.js |
 | Saved chat history | Done | Every chat is saved with its sources and opens at its own address (`/chat/<id>`), with a short AI-written title. Recent chats are listed in the sidebar by date, with delete; follow-up questions use the saved conversation |
 | Semantic search | Verified | `match_chunks()` returns the right page for questions in English and German |
 | Document library | Done | List with status badges, summary counts, search by name and delete |
@@ -94,6 +96,7 @@ from the **Recent chats** list.
 | Auth, database, storage | [Supabase](https://supabase.com) (Postgres, pgvector, Auth, Storage) |
 | PDF text | [unpdf](https://github.com/unjs/unpdf), a serverless-friendly pdf.js build |
 | AI | Google Gemini: `gemini-embedding-001` for embeddings (768 dimensions) and `gemini-3.5-flash-lite` for answers (set `GEMINI_CHAT_MODEL` to change) |
+| PDF viewer | [PDF.js](https://mozilla.github.io/pdf.js/) (`pdfjs-dist`), loaded only when a PDF is opened |
 | Markdown | [react-markdown](https://github.com/remarkjs/react-markdown) renders answers safely |
 
 There is no separate backend. The server logic lives in Next.js route handlers and
@@ -197,6 +200,8 @@ src/
     chat/                       useChat hook, ChatPanel, MessageList, AnswerText,
                                 SourceChips, Composer + server/ (retrieve, prompt,
                                 streamAnswer, validate)
+    viewer/                     PdfViewerPanel, PdfPage (canvas + highlight overlay),
+                                ViewerProvider, usePdfDocument, findHighlight
     processing/                 Server-only pipeline: extractPages, chunkText, embed,
                                 processDocument
   lib/
@@ -237,7 +242,7 @@ script before first paint.
 - [x] Question answering with streamed responses and page citations
 - [x] Chat history sidebar
 - [ ] Workspaces
-- [ ] Clickable citations that open the PDF at the right page
+- [x] Clickable citations that open the PDF at the right page, with the passage highlighted
 - [ ] Hybrid search, reranking and an evaluation set
 - [ ] Tests, CI and deployment
 
