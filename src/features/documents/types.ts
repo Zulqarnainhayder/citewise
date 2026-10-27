@@ -5,6 +5,7 @@ export type DocumentRow = {
   title: string;
   status: DocumentStatus;
   storage_path: string;
+  page_count: number | null;
   created_at: string;
 };
 

@@ -30,6 +30,11 @@ export async function proxy(request: NextRequest) {
   const isLoggedIn = !!data?.claims;
   const isLoginPage = request.nextUrl.pathname.startsWith("/login");
 
+  if (!isLoggedIn && request.nextUrl.pathname.startsWith("/api/")) {
+    // API callers get a status code to handle, not a redirect to a page.
+    return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
+  }
+
   if (!isLoggedIn && !isLoginPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

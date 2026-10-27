@@ -5,6 +5,7 @@ import { Alert } from "@/components/ui/Alert";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { useDocuments } from "../hooks/useDocuments";
+import { useProcessing } from "../hooks/useProcessing";
 import { useUploader } from "../hooks/useUploader";
 import type { DocumentRow } from "../types";
 import { DocumentList } from "./DocumentList";
@@ -13,8 +14,18 @@ import { Dropzone } from "./Dropzone";
 import { UploadQueue } from "./UploadQueue";
 
 export function DocumentsPanel() {
-  const { documents, loading, error, add, remove } = useDocuments();
-  const { uploads, notice, upload, dismiss } = useUploader(add);
+  const { documents, loading, error, add, update, remove } = useDocuments();
+  const { process, error: processError } = useProcessing(update);
+
+  // Every new upload is processed straight away.
+  const handleUploaded = useCallback(
+    (doc: DocumentRow) => {
+      add(doc);
+      void process(doc);
+    },
+    [add, process],
+  );
+  const { uploads, notice, upload, dismiss } = useUploader(handleUploaded);
   const [query, setQuery] = useState("");
   const [pendingDelete, setPendingDelete] = useState<DocumentRow | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -43,7 +54,7 @@ export function DocumentsPanel() {
       : documents;
   }, [documents, query]);
 
-  const message = notice ?? deleteError;
+  const message = notice ?? deleteError ?? processError;
   const uploading = uploads.some((u) => u.state === "uploading");
 
   return (
@@ -90,6 +101,7 @@ export function DocumentsPanel() {
           error={error}
           uploading={uploading}
           onDelete={requestDelete}
+          onProcess={process}
         />
       </section>
 
@@ -106,6 +118,7 @@ export function DocumentsPanel() {
           </>
         }
         confirmLabel="Delete document"
+        loadingLabel="Deleting…"
         loading={deleting}
         onConfirm={confirmDelete}
         onCancel={() => setPendingDelete(null)}

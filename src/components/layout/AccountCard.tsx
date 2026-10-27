@@ -1,5 +1,4 @@
-import { signOut } from "@/features/auth/actions";
-import { Button } from "@/components/ui/Button";
+import { SignOutButton } from "@/features/auth/components/SignOutButton";
 import { createClient } from "@/lib/supabase/server";
 
 export async function AccountCard() {
@@ -18,11 +17,7 @@ export async function AccountCard() {
           <p className="truncate text-sm font-medium text-brand-900 dark:text-white">{email}</p>
         </div>
       </div>
-      <form action={signOut}>
-        <Button variant="secondary" size="sm" fullWidth>
-          Sign out
-        </Button>
-      </form>
+      <SignOutButton fullWidth />
     </div>
   );
 }

@@ -33,6 +33,10 @@ export function useDocuments() {
     setDocuments((prev) => [doc, ...prev]);
   }, []);
 
+  const update = useCallback((id: string, patch: Partial<DocumentRow>) => {
+    setDocuments((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d)));
+  }, []);
+
   /** Resolves to an error message, or null on success. */
   const remove = useCallback(
     async (doc: DocumentRow): Promise<string | null> => {
@@ -48,5 +52,5 @@ export function useDocuments() {
     [supabase],
   );
 
-  return { documents, loading, error, add, remove };
+  return { documents, loading, error, add, update, remove };
 }

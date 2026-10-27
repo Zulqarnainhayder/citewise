@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { FileTextIcon, TrashIcon } from "@/components/icons";
+import { FileTextIcon, RefreshIcon, TrashIcon } from "@/components/icons";
 import type { DocumentRow } from "../types";
 import { formatDate } from "../utils";
 import { StatusBadge } from "./StatusBadge";
@@ -10,11 +10,22 @@ type Props = {
   doc: DocumentRow;
   /** Asks the parent to confirm and delete this document. */
   onDelete: (doc: DocumentRow) => void;
+  onProcess: (doc: DocumentRow) => void;
 };
 
-export const DocumentItem = memo(function DocumentItem({ doc, onDelete }: Props) {
+const iconButton =
+  "rounded-lg p-2 text-brand-500 transition focus:outline-none focus-visible:ring-2 dark:text-brand-300";
+
+function pageLabel(count: number | null) {
+  if (!count) return "PDF document";
+  return `${count} ${count === 1 ? "page" : "pages"}`;
+}
+
+export const DocumentItem = memo(function DocumentItem({ doc, onDelete, onProcess }: Props) {
+  const canProcess = doc.status === "pending" || doc.status === "failed";
+
   return (
-    <li className="grid grid-cols-[1fr_auto_2.25rem] items-center gap-3 px-4 py-3.5 transition-colors hover:bg-brand-50 dark:hover:bg-brand-800/40 sm:grid-cols-[1fr_8rem_9rem_2.5rem] sm:gap-4 sm:px-5">
+    <li className="grid grid-cols-[1fr_auto_auto] items-center gap-3 px-4 py-3.5 transition-colors hover:bg-brand-50 dark:hover:bg-brand-800/40 sm:grid-cols-[1fr_8rem_9rem_5.5rem] sm:gap-4 sm:px-5">
       <div className="flex min-w-0 items-center gap-3.5">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 ring-1 ring-red-100 dark:bg-red-950/40 dark:text-red-300 dark:ring-red-900/50">
           <FileTextIcon className="h-5 w-5" />
@@ -23,10 +34,10 @@ export const DocumentItem = memo(function DocumentItem({ doc, onDelete }: Props)
           <p className="truncate text-sm font-semibold text-brand-900 dark:text-white">
             {doc.title}
           </p>
-          <p className="text-xs text-brand-600 sm:hidden dark:text-brand-300">
-            {formatDate(doc.created_at)}
+          <p className="text-xs text-brand-600 dark:text-brand-300">
+            <span className="sm:hidden">{formatDate(doc.created_at)} · </span>
+            {pageLabel(doc.page_count)}
           </p>
-          <p className="hidden text-xs text-brand-600 sm:block dark:text-brand-300">PDF document</p>
         </div>
       </div>
 
@@ -38,15 +49,28 @@ export const DocumentItem = memo(function DocumentItem({ doc, onDelete }: Props)
         <StatusBadge status={doc.status} />
       </div>
 
-      <button
-        type="button"
-        onClick={() => onDelete(doc)}
-        aria-label={`Delete ${doc.title}`}
-        title="Delete"
-        className="shrink-0 justify-self-end rounded-lg p-2 text-brand-500 transition hover:bg-red-50 hover:text-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:text-brand-300 dark:hover:bg-red-950/40 dark:hover:text-red-300"
-      >
-        <TrashIcon className="h-[18px] w-[18px]" />
-      </button>
+      <div className="flex items-center justify-end gap-0.5">
+        {canProcess && (
+          <button
+            type="button"
+            onClick={() => onProcess(doc)}
+            aria-label={`${doc.status === "failed" ? "Try again" : "Process"}: ${doc.title}`}
+            title={doc.status === "failed" ? "Try again" : "Process now"}
+            className={`${iconButton} hover:bg-accent-50 hover:text-accent-700 focus-visible:ring-accent-600 dark:hover:bg-accent-700/20 dark:hover:text-accent-300`}
+          >
+            <RefreshIcon className="h-[18px] w-[18px]" />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => onDelete(doc)}
+          aria-label={`Delete ${doc.title}`}
+          title="Delete"
+          className={`${iconButton} hover:bg-red-50 hover:text-red-600 focus-visible:ring-red-500 dark:hover:bg-red-950/40 dark:hover:text-red-300`}
+        >
+          <TrashIcon className="h-[18px] w-[18px]" />
+        </button>
+      </div>
     </li>
   );
 });

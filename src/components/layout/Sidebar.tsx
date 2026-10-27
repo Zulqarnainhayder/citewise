@@ -2,8 +2,14 @@ import { Suspense } from "react";
 import { Logo } from "@/components/Logo";
 import { ChatIcon, FolderIcon, LayersIcon, SettingsIcon } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { ChatHistoryPanel } from "@/features/chat/components/ChatHistoryPanel";
 import { AccountCard } from "./AccountCard";
 import { NavItem } from "./NavItem";
+
+const iconClass = "h-[18px] w-[18px]";
+
+const sectionLabel =
+  "px-3 text-[11px] font-semibold uppercase tracking-wider text-brand-500 dark:text-brand-400";
 
 export function Sidebar() {
   return (
@@ -12,20 +18,24 @@ export function Sidebar() {
         <Logo size={34} />
       </div>
 
-      <nav aria-label="Main" className="flex-1 space-y-1 p-3">
-        <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-brand-500 dark:text-brand-400">
-          Workspace
-        </p>
-        <NavItem label="Documents" icon={FolderIcon} href="/" active />
-        <NavItem label="Chat" icon={ChatIcon} soon />
-        <NavItem label="Workspaces" icon={LayersIcon} soon />
-        <NavItem label="Settings" icon={SettingsIcon} soon />
-      </nav>
+      {/* The nav reads the current path, which is runtime data on dynamic routes. */}
+      <Suspense fallback={<div className="flex-1" />}>
+        <nav aria-label="Main" className="flex-1 space-y-1 overflow-y-auto p-3">
+          <p className={`${sectionLabel} pb-1 pt-2`}>Workspace</p>
+          <NavItem label="Documents" icon={<FolderIcon className={iconClass} />} href="/" />
+          <NavItem label="Chat" icon={<ChatIcon className={iconClass} />} href="/chat" />
+          <NavItem label="Workspaces" icon={<LayersIcon className={iconClass} />} soon />
+          <NavItem label="Settings" icon={<SettingsIcon className={iconClass} />} soon />
+
+          <div className="pt-4">
+            <p className={`${sectionLabel} pb-2`}>Recent chats</p>
+            <ChatHistoryPanel />
+          </div>
+        </nav>
+      </Suspense>
 
       <div className="px-3 pb-3">
-        <p className="px-1 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-brand-500 dark:text-brand-400">
-          Appearance
-        </p>
+        <p className={`${sectionLabel} px-1 pb-1.5`}>Appearance</p>
         <ThemeToggle />
       </div>
 

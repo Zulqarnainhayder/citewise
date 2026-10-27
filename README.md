@@ -22,9 +22,9 @@ CiteWise is a document-research app built around **verifiable answers**. Instead
 returning a block of text you have to trust, it will show the exact page of the exact
 document each answer came from, so you can check it in one click.
 
-> **Status: early development.** Authentication, the database schema, the dashboard
-> and PDF upload are done. Reading the PDFs (text extraction and embeddings) and chat are
-> the next milestones. See the [roadmap](#roadmap) for what is built and what is planned.
+> **Status: early development.** Authentication, the database schema, the dashboard,
+> PDF upload, PDF processing, and chat with page citations and saved chat history are done.
+> Workspaces and a PDF viewer that opens at the cited page are next. See the [roadmap](#roadmap) for what is built and what is planned.
 
 ## What works today
 
@@ -37,6 +37,10 @@ document each answer came from, so you can check it in one click.
 | Private file storage | Done | A private `documents` bucket, PDF only, 10 MB limit, per-user folders |
 | Vector search function | Done | `match_chunks()` finds the closest passages by meaning |
 | PDF upload | Done | Drag and drop or file picker, PDF only, up to 10 MB each, up to 5 at once, straight to private storage |
+| PDF processing | Done | Text extracted page by page, split into overlapping chunks, embedded with Gemini (768 dimensions) and saved with page numbers. Status moves Uploaded, Processing, Ready or Failed, with a retry button |
+| Chat with page citations | Done | Streamed answers from a Gemini chat model, grounded only in your documents, with `[n]` citation badges and expandable source passages. Says "I couldn't find that in your documents" instead of guessing. Works across English and German |
+| Saved chat history | Done | Every chat is saved with its sources and opens at its own address (`/chat/<id>`). Recent chats are listed in the sidebar by date, with delete; follow-up questions use the saved conversation |
+| Semantic search | Verified | `match_chunks()` returns the right page for questions in English and German |
 | Document library | Done | List with status badges, summary counts, search by name and delete |
 | Dashboard layout | Done | Sidebar navigation, page header, responsive top bar on phones |
 | Light, dark and system themes | Done | Remembered per browser, applied before first paint so there is no flash |
@@ -51,8 +55,12 @@ document each answer came from, so you can check it in one click.
 5. Switch between **light, dark and system** themes from the sidebar.
 6. **Sign out**.
 
-Documents are stored but not yet read: extracting their text, building embeddings
-and chatting are the next milestones.
+Each upload is processed automatically: you can watch it go from Uploaded to
+Processing to Ready, with a page count. Failed documents (for example scanned,
+image-only PDFs) show a clear reason and a retry button. Open **Chat** to ask
+questions about all your ready documents, or just one, and see which pages each
+answer came from. Chats are saved automatically, so you can leave and come back to them
+from the **Recent chats** list.
 
 ## Planned features
 
@@ -84,7 +92,9 @@ and chatting are the next milestones.
 | Language | TypeScript |
 | Styling | Tailwind CSS 4 with a two-color theme (slate-navy and emerald) |
 | Auth, database, storage | [Supabase](https://supabase.com) (Postgres, pgvector, Auth, Storage) |
-| AI (planned) | Google Gemini for embeddings (768 dimensions) and chat, via LangChain.js and LangGraph.js |
+| PDF text | [unpdf](https://github.com/unjs/unpdf), a serverless-friendly pdf.js build |
+| AI | Google Gemini: `gemini-embedding-001` for embeddings (768 dimensions) and `gemini-3.5-flash-lite` for answers (set `GEMINI_CHAT_MODEL` to change) |
+| Markdown | [react-markdown](https://github.com/remarkjs/react-markdown) renders answers safely |
 
 There is no separate backend. The server logic lives in Next.js route handlers and
 server actions, so the whole app deploys as one project (for example on Vercel).
@@ -169,6 +179,10 @@ src/
   app/                          Thin pages that only compose components
     page.tsx                    Documents dashboard
     login/page.tsx              Sign in / sign up
+    chat/page.tsx               New chat
+    chat/[chatId]/page.tsx      A saved chat
+    api/documents/[id]/process/ POST route that processes an uploaded PDF
+    api/chat/                   POST route: retrieve passages, stream a cited answer
     layout.tsx, globals.css     Root layout, theme script, Tailwind theme tokens
   components/
     ui/                         Button, Card, Alert, Spinner, SearchInput
@@ -180,6 +194,11 @@ src/
     auth/                       Server actions + AuthForm, TextField, BrandPanel, ...
     documents/                  Hooks (useDocuments, useUploader) + Dropzone,
                                 DocumentList, DocumentItem, DocumentStats, ...
+    chat/                       useChat hook, ChatPanel, MessageList, AnswerText,
+                                SourceChips, Composer + server/ (retrieve, prompt,
+                                streamAnswer, validate)
+    processing/                 Server-only pipeline: extractPages, chunkText, embed,
+                                processDocument
   lib/
     supabase/                   Browser client, server client, useSupabase hook
     theme.ts                    Theme storage and the no-flash init script
@@ -214,9 +233,9 @@ script before first paint.
 - [x] Branding and responsive UI for login and dashboard
 - [x] Light, dark and system themes
 - [x] PDF upload to private storage, document library, search and delete
-- [ ] Page-by-page text extraction, chunking and embeddings
-- [ ] Question answering with streamed responses and page citations
-- [ ] Chat history sidebar
+- [x] Page-by-page text extraction, chunking and embeddings
+- [x] Question answering with streamed responses and page citations
+- [x] Chat history sidebar
 - [ ] Workspaces
 - [ ] Clickable citations that open the PDF at the right page
 - [ ] Hybrid search, reranking and an evaluation set
