@@ -16,6 +16,8 @@ Upload PDFs, ask questions in English or German, and jump straight to the passag
 
 ---
 
+**Live demo: [citewise-rouge.vercel.app](https://citewise-rouge.vercel.app)**
+
 ## Overview
 
 CiteWise is a document-research app built around **verifiable answers**. Instead of
@@ -215,17 +217,18 @@ npm install
 
 ### 3. Configure environment variables
 
-Create a `.env.local` file in the project root:
+Copy [`.env.example`](.env.example) to `.env.local` and fill in three values:
 
 ```bash
 GOOGLE_API_KEY=                      # Google AI Studio key (server only)
 NEXT_PUBLIC_SUPABASE_URL=            # Project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY=       # Publishable (anon) key, safe for the browser
-SUPABASE_SERVICE_ROLE_KEY=           # Secret key, server only
 ```
 
-`.env*` files are git-ignored. Never commit keys, and never expose the secret key to
-client code.
+`GEMINI_CHAT_MODEL` is optional. The app never uses the Supabase secret (service role) key: every
+database and storage call runs as the signed-in user, so row level security protects the data. Keep
+that key out of the project entirely. `.env*` files are git-ignored (except `.env.example`), so never
+commit real keys.
 
 ### 4. Run it
 
@@ -234,6 +237,27 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). You will be sent to the login page.
+
+## Deploying to Vercel
+
+CiteWise deploys as a single Next.js project. These are the steps that were used for the live demo:
+
+1. **Import the repo** at [vercel.com/new](https://vercel.com/new) (or run `vercel link` and `vercel deploy --prod`).
+   Vercel detects Next.js; no build settings are needed.
+2. **Add three environment variables** for Production: `GOOGLE_API_KEY` (mark it Sensitive),
+   `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Do not add the Supabase secret key: the
+   app never uses it.
+3. **Run the database script** [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) in the
+   Supabase SQL Editor (once).
+4. **Tell Supabase the site address.** In Supabase, open Authentication, then URL Configuration, and set the
+   Site URL to your Vercel address and add it to the redirect URLs. Without this, the links in sign-up
+   confirmation emails point to `localhost`.
+5. **Keep functions near the database.** [`vercel.json`](vercel.json) runs the server functions in `fra1`
+   (Frankfurt) because the Supabase project is in Europe. Functions default to the US East coast, which made
+   every database call cross the Atlantic: moving them cut the first chat token from about 3 seconds to
+   about 1.2 seconds. Change the region to match your own Supabase project.
+
+Pushes to `main` deploy automatically once the repository is connected.
 
 ## Project structure
 
